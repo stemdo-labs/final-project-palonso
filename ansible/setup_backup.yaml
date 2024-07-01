@@ -9,7 +9,7 @@
         state: present
 
     - name: Backup MySQL database on the database VM from the backup VM
-      shell: mysqldump -u pilar -p'pilar' -h 10.0.2.4 concierto > /tmp/concierto_backup.sql
+      shell: mysqldump -u pilar -p'pilar' -h 10.0.26.5 concierto > /tmp/concierto_backup.sql
 
     - name: Install dependencies for Azure CLI on the backup VM
       apt:
