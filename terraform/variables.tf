@@ -1,74 +1,59 @@
-variable "resource_group_name" {
-  description = "The name of the resource group"
-  type        = string
+variable "location" {
+  description = "The Azure region where resources will be deployed"
+  default     = "uksouth"
 }
 
-variable "location" {
-  description = "The Azure region to deploy resources"
-  type        = string
+variable "resource_group_name" {
+  description = "The name of the resource group"
+  default     = "rg-palonso"
 }
 
 variable "vnet_name" {
   description = "The name of the virtual network"
-  type        = string
+  default     = "vnet-common-bootcamp"
 }
 
-variable "vnet_cidr" {
-  description = "The CIDR block for the virtual network"
-  type        = string
+variable "vnet_resource_group_name" {
+  description = "The name of the resource group where the virtual network is located"
+  default     = "final-project-common"
 }
 
-variable "subnet_names" {
-  description = "List of subnet names"
-  type        = list(string)
+variable "db_subnet_name" {
+  description = "The name of the subnet for the database VM"
+  default     = "sn-palonso"
 }
 
-variable "subnet_prefixes" {
-  description = "List of subnet CIDR prefixes"
-  type        = list(string)
+variable "backup_subnet_name" {
+  description = "The name of the subnet for the backup VM"
+  default     = "sn-palonso"
 }
 
 variable "db_vm_name" {
-  description = "The name of the DB VM"
-  type        = string
+  description = "The name of the database VM"
+  default     = "db-vm"
 }
 
 variable "db_vm_size" {
-  description = "The size of the DB VM"
-  type        = string
+  description = "The size of the database VM"
+  default     = "Standard_B1ms"
 }
 
 variable "backup_vm_name" {
-  description = "The name of the Backup VM"
-  type        = string
+  description = "The name of the backup VM"
+  default     = "backup-vm"
 }
 
 variable "backup_vm_size" {
-  description = "The size of the Backup VM"
-  type        = string
+  description = "The size of the backup VM"
+  default     = "Standard_B1ms"
 }
 
-variable "default_node_pool_name" {
-  description = "The default node pool name"
-  type        = string
+variable "public_ip" {
+  description = "Boolean to create a public IP"
+  default     = true
 }
 
-variable "default_node_pool_vm_size" {
-  description = "The VM size for the default node pool"
-  type        = string
-}
-
-variable "default_node_pool_min_count" {
-  description = "The minimum count for the default node pool"
-  type        = number
-}
-
-variable "default_node_pool_max_count" {
-  description = "The maximum count for the default node pool"
-  type        = number
-}
-variable "aks_resource_group_name" {
-  description = "The name of the resource group where the AKS cluster is deployed"
-  type        = string
-  default     = "MC_rg-palonso-dvfinlab_aks-cluster_westeurope"
+variable "nsg_name" {
+  description = "The name of the network security group"
+  default     = "default-nsg"
 }

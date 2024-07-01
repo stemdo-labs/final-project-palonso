@@ -1,18 +1,27 @@
-
 # Definir la ubicación de los recursos
-location = "westeurope"
-# Definir el nombre del grupo de recursos
-resource_group_name = "rg-palonso-dvfinlab"
+location = "uksouth"
 
-vnet_name           = "my-vnet"
-vnet_cidr           = "10.0.0.0/16"
-subnet_names        = ["db-subnet", "backup-subnet"]
-subnet_prefixes     = ["10.0.2.0/24", "10.0.3.0/24"]
-db_vm_name          = "db-vm"
-db_vm_size          = "Standard_B1ms"
-backup_vm_name      = "backup-vm"
-backup_vm_size      = "Standard_B1ms"
-default_node_pool_name = "aks"
-default_node_pool_vm_size = "Standard_B2s"
-default_node_pool_min_count = 1
-default_node_pool_max_count = 3
+# Definir el nombre del grupo de recursos
+resource_group_name = "rg-palonso"
+
+# Definir el nombre de la VNet común
+vnet_name = "vnet-common-bootcamp"
+
+# Definir el nombre del grupo de recursos de la VNet
+vnet_resource_group_name = "final-project-common"
+
+# Definir el nombre de las subredes
+db_subnet_name = "sn-palonso"
+backup_subnet_name = "sn-palonso"
+
+# Nombres y tamaños de las VMs
+db_vm_name     = "db-vm"
+db_vm_size     = "Standard_B1ms"
+backup_vm_name = "backup-vm"
+backup_vm_size = "Standard_B1ms"
+
+# Configuración de IP pública
+public_ip = true
+
+# Nombre del NSG
+nsg_name = "default-nsg"
