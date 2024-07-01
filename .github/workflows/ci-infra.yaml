@@ -33,7 +33,7 @@ jobs:
         working-directory: ./terraform
 
       - name: Force Unlock State
-        run: terraform force-unlock ac0fae87-e9c3-1c9d-91cf-f5130070734d
+        run: terraform force-unlock -force ac0fae87-e9c3-1c9d-91cf-f5130070734d
         continue-on-error: true
         working-directory: ./terraform
 
