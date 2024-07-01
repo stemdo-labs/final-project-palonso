@@ -17,7 +17,11 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Run Backp Playbook
+      - name: Install Ansible on Remote
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@51.145.79.188 'sudo apt update && sudo apt install ansible -y'
+
+      - name: Run Backup Playbook
         env:
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |
