@@ -21,6 +21,10 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@51.145.79.188 'sudo apt update && sudo apt install ansible -y'
 
+      - name: Remove existing ansible folder on Remote
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@51.145.79.188 'rm -rf /home/adminuser/ansible'
+
       - name: Copy Playbooks to Remote
         run: |
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./ansible adminuser@51.145.79.188:/home/adminuser/ansible
