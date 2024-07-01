@@ -1,0 +1,56 @@
+---
+- name: Backup MySQL Database and Upload to Azure
+  hosts: localhost
+  become: yes
+  vars:
+    mysql_user: "pilar"
+    mysql_password: "pilar"
+    mysql_host: "10.0.26.5"
+    database_name: "concierto"
+    backup_file: "/tmp/concierto_backup.sql"
+    azure_account_name: "stapalonso"
+    azure_container_name: "tfstate"
+
+  tasks:
+    - name: Ensure MySQL client is installed on the backup VM
+      apt:
+        name: mysql-client
+        state: present
+
+    - name: Backup MySQL database on the database VM from the backup VM
+      shell: mysqldump -u {{ mysql_user }} -p'{{ mysql_password }}' -h {{ mysql_host }} {{ database_name }} > {{ backup_file }}
+
+    - name: Install dependencies for Azure CLI on the backup VM
+      apt:
+        name:
+          - ca-certificates
+          - curl
+          - apt-transport-https
+          - lsb-release
+          - gnupg
+        state: present
+
+    - name: Add Microsoft GPG key on the backup VM
+      apt_key:
+        url: https://packages.microsoft.com/keys/microsoft.asc
+        state: present
+
+    - name: Add Microsoft repository on the backup VM
+      shell: |
+        echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
+
+    - name: Update apt cache on the backup VM
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install Azure CLI on the backup VM
+      apt:
+        name: azure-cli
+        state: present
+
+    - name: Upload backup to Azure Storage
+      shell: |
+        az storage blob upload --account-name {{ azure_account_name }} --account-key $AZURE_STORAGE_KEY --container-name {{ azure_container_name }} --name {{ backup_file | basename }} --file {{ backup_file }}
+      environment:
+        AZURE_STORAGE_KEY: "{{ azure_storage_key }}"

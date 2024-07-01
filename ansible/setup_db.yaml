@@ -58,15 +58,30 @@
         enabled: yes
         state: started
 
-    - name: Setup MySQL root password and create database
+    - name: Setup MySQL root password
+      mysql_user:
+        name: root
+        password: 'pilar'
+        login_user: root
+        login_password: 'pilar'
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        priv: '*.*:ALL,GRANT'
+        state: present
+
+    - name: Create MySQL user for 'pilar'
       mysql_user:
         name: pilar
         password: 'pilar'
+        priv: 'concierto.*:ALL'
+        login_user: root
+        login_password: 'pilar'
         login_unix_socket: /var/run/mysqld/mysqld.sock
-        host_all: yes
         state: present
 
     - name: Create MySQL database
       mysql_db:
         name: concierto
+        login_user: root
+        login_password: 'pilar'
+        login_unix_socket: /var/run/mysqld/mysqld.sock
         state: present
