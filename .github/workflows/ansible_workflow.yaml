@@ -17,12 +17,12 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Run Backup Playbook
+      - name: Run Backp Playbook
         env:
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@20.234.175.246 'ansible-playbook -i inventory.ini setup_backup.yaml -e "azure_storage_key=${AZURE_STORAGE_KEY}"'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@51.145.79.188 'ansible-playbook -i inventory.ini setup_backup.yaml -e "azure_storage_key=${AZURE_STORAGE_KEY}"'
 
       - name: Run Setup DB Playbook
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@20.234.175.246 'ansible-playbook -i inventory.ini setup_db.yaml'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@51.145.79.188 'ansible-playbook -i inventory.ini setup_db.yaml'
