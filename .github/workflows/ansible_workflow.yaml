@@ -17,12 +17,6 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Generate and copy SSH key to remote
-        run: |
-          ssh-keygen -t rsa -b 2048 -m PEM -f ~/.ssh/id_rsa
-          ssh-copy-id -i ~/.ssh/id_rsa.pub adminuser@51.145.79.188
-          ssh adminuser@51.145.79.188 'chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys'
-
       - name: Install Ansible on Remote
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@51.145.79.188 'sudo apt update && sudo apt install ansible -y'
