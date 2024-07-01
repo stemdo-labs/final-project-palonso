@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          ref: iac-palonso  
+          ref: palonso-iac-b  
 
       - name: Log in to Azure
         uses: azure/login@v1
