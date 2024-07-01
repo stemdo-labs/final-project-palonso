@@ -28,9 +28,6 @@
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: Install Azure CLI on the backup VM
-      apt:
-        name: azure-cli
-        state: present
+ 
 
    
