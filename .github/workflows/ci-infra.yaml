@@ -3,7 +3,7 @@ name: CI for Infrastructure
 on:
   push:
     branches:
-      - iac-palonso
+      - palonso-iac-b
 
 jobs:
   terraform-plan:
