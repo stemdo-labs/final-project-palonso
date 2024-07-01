@@ -1,5 +1,6 @@
 ---
-- hosts: database
+- name: setup db 
+  hosts: backup
   become: yes
   tasks:
     - name: Update and upgrade apt packages
