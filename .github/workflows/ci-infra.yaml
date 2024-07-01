@@ -28,13 +28,17 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
 
+      - name: Terraform Init
+        run: terraform init -reconfigure
+        working-directory: ./terraform
+
       - name: Force Unlock State
         run: terraform force-unlock ac0fae87-e9c3-1c9d-91cf-f5130070734d
         continue-on-error: true
         working-directory: ./terraform
 
-      - name: Terraform Init
-        run: terraform init
+      - name: Terraform Init Again
+        run: terraform init -reconfigure
         working-directory: ./terraform
 
       - name: Terraform Plan
