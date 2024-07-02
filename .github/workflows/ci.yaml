@@ -41,7 +41,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t palonsoacr.azurecr.io/my-concert-app:${{ env.VERSION }} -t palonsoacr.azurecr.io/my-concert-app:latest .
+          docker build -t palonsoacr.azurecr.io/my-concert-app:${{ env.VERSION }} -t palonsoacr.azurecr.io/my-concert-app:latest -f app/Dockerfile .
         working-directory: .
 
       - name: Push Docker image
