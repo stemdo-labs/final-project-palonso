@@ -15,12 +15,12 @@ spec:
     spec:
       containers:
       - name: my-concert-app
-        image: palonsoacr.azurecr.io/my-concert-app:latest
+        image: palonsoacr.azurecr.io/my-concert-app:${VERSION}
         ports:
         - containerPort: 80
         env:
         - name: DB_HOST
-          value: "10.0.2.4"  
+          value: "10.0.26.5"
         - name: DB_USER
           value: "pilar"
         - name: DB_PASSWORD

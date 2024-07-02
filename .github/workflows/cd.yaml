@@ -49,9 +49,13 @@ jobs:
         run: |
           kubelogin convert-kubeconfig -l azurecli
 
+      - name: Replace VERSION in deployment.yaml
+        run: |
+          sed -i 's/${VERSION}/'${{ env.VERSION }}'/' kubernetes/deployment.yaml
+
       - name: Apply Kubernetes manifests
         run: |
-          kubectl apply -f kubernetes/. -n ns-palonso
+          kubectl apply -f kubernetes/ -n ns-palonso
 
       - name: Update deployment image
         run: |
