@@ -40,8 +40,10 @@ jobs:
 
       - name: Install kubelogin
         run: |
-          az extension add --name k8s-extension
-          az extension add --name k8s-extension
+          curl -Lo kubelogin.zip https://github.com/Azure/kubelogin/releases/latest/download/kubelogin-linux-amd64.zip
+          unzip kubelogin.zip -d /usr/local/bin
+          sudo mv /usr/local/bin/bin/linux_amd64/kubelogin /usr/local/bin/
+          rm -rf kubelogin.zip /usr/local/bin/bin
 
       - name: Convert kubeconfig
         run: |
@@ -49,7 +51,6 @@ jobs:
 
       - name: Apply Kubernetes manifests
         run: |
-          kubectl apply -f kubernetes/. -n ns-palonso
           kubectl apply -f kubernetes/. -n ns-palonso
 
       - name: Update deployment image
