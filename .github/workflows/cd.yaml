@@ -3,11 +3,11 @@ name: CD for Application and K8s Deploy
 on:
   workflow_dispatch:
     
+    
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-   
- 
+
     defaults:
       run:
         shell: bash
@@ -23,25 +23,57 @@ jobs:
       - name: Get version from composer.json
         id: get_version
         run: | 
-          echo "version=$(jq -r .version app/composer.json)" >> "$GITHUB_OUTPUT"
           VERSION=$(jq -r '.version' app/composer.json)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Connection to cluster
+      - name: Set Azure account
         run: |
-          az acr login --name ${{ secrets.ACR_USERNAME }}
           az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
+
+      - name: Get AKS credentials
+        run: |
           az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP_NAME_AKS }} --name ${{ secrets.CLUSTER_NAME }} --overwrite-existing
+
+      - name: Install Azure CLI
+        run: |
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+      - name: Install Homebrew
+        run: |
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
           (echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/runner/.bashrc
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           sudo apt-get install build-essential
+
+      - name: Install kubelogin
+        run: |
           brew install Azure/kubelogin/kubelogin
+
+      - name: Convert kubeconfig
+        run: |
           kubelogin convert-kubeconfig -l azurecli
+
+      - name: Apply Kubernetes manifests
+        run: |
           kubectl apply -f kubernetes/.  -n ns-palonso
+
+      - name: Update deployment image
+        run: |
           kubectl set image deployment/deploy-concert concertapp=palonsoacr.azurecr.io/my-concert-app:${{ inputs.tag }} -n ns-palonso
+
+      - name: Get all resources in namespace
+        run: |
           kubectl get all -n ns-palonso
+
+      - name: Apply Ingress Controller
+        run: |
           kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml
+
+      - name: Get Ingress pods
+        run: |
           kubectl get pods --namespace ingress-nginx
+
+      - name: Get Ingress service
+        run: |
           kubectl get service ingress-nginx-controller --namespace=ingress-nginx
