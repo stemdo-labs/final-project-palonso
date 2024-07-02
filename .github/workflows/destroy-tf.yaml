@@ -28,6 +28,7 @@ jobs:
           az disk delete --name backup-vm-osdisk --resource-group rg-palonso --yes --no-wait
           az disk delete --name db-vm-osdisk --resource-group rg-palonso --yes --no-wait
 
+      
 
       - name: Terraform Init
         run: terraform init
