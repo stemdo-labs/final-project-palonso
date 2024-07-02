@@ -45,6 +45,8 @@ module "db_vm" {
   subnet_id           = data.azurerm_subnet.subnet_db.id
   vm_size             = var.db_vm_size
   nsg_id              = module.nsg.nsg_id
+  admin_username      = "adminuser"
+  admin_password      = var.admin_password
 }
 
 # VM de backup
@@ -57,6 +59,8 @@ module "backup_vm" {
   vm_size             = var.backup_vm_size
   nsg_id              = module.nsg.nsg_id
   public_ip           = var.public_ip
+  admin_username      = "adminuser2"
+  admin_password      = var.admin_password
 }
 
 # Módulo de Load Balancer

@@ -12,7 +12,11 @@ variable "vnet_name" {
   description = "The name of the virtual network"
   default     = "vnet-common-bootcamp"
 }
-
+variable "admin_password" {
+  description = "The admin password for the VMs."
+  type        = string
+  sensitive   = true
+}
 variable "vnet_resource_group_name" {
   description = "The name of the resource group where the virtual network is located"
   default     = "final-project-common"

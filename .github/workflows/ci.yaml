@@ -1,12 +1,12 @@
 name: CI for Application
 
 on:
-  workflow_run:
-    workflows: ["CD for Infrastructure"]
-    types:
-      - completed
-    branches:
-      - 'dev'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to deploy from'
+        default: 'main'
+        required: true
 
 jobs:
   build-and-test:
@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Get version from composer.json
         id: get_version
