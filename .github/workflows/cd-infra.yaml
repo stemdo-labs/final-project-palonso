@@ -2,11 +2,11 @@ name: CD for Infrastructure
 
 on:
   workflow_run:
-    workflows: ["CI for Infrastucture"]
+    workflows: ["CI for Infrastructure"]
     types:
       - completed
     branches:
-      - 'palonso-iac-b'
+      - 'main'
 
 jobs:
   apply-infra:
@@ -15,8 +15,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        with:
-          ref: palonso-iac-b
 
       - name: Log in to Azure
         uses: azure/login@v1
@@ -32,6 +30,10 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
+        working-directory: ./terraform
+
+      - name: Import existing resource group
+        run: terraform import azurerm_resource_group.main "/subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/rg-palonso"
         working-directory: ./terraform
 
       - name: Terraform Apply
