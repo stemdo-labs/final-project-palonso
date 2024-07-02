@@ -1,12 +1,7 @@
 name: CI for Application
 
 on:
-  workflow_run:
-    workflows: ["CD for Infrastructure"]
-    types:
-      - completed
-    branches:
-      - 'dev'
+  workflow_dispatch:
 
 jobs:
   build-and-test:
