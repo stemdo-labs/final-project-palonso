@@ -3,6 +3,7 @@ name: CI for Application
 on:
   workflow_dispatch:
 
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -12,12 +13,12 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Get version from composer.json
         id: get_version
         run: |
-          VERSION=$(jq -r '.version' composer.json)
+          VERSION=$(jq -r '.version' app/composer.json)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Log in to Azure
@@ -36,7 +37,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t palonsoacr.azurecr.io/my-concert-app:${{ env.VERSION }} -t palonsoacr.azurecr.io/my-concert-app:latest .
+          docker build -t palonsoacr.azurecr.io/my-concert-app:${{ env.VERSION }} -t palonsoacr.azurecr.io/my-concert-app:latest -f app/Dockerfile .
         working-directory: .
 
       - name: Push Docker image

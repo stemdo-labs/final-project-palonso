@@ -1,0 +1,20 @@
+---
+- name: Seed the Database
+  hosts: database
+  become: yes
+  vars:
+    db_seed_file: "/tmp/concierto-bd.sql"
+    mysql_user: "root"
+    mysql_password: "pilar"
+    database_name: "concierto"
+
+  tasks:
+    - name: Copy the seed file to the database VM
+      copy:
+        src: concierto-bd.sql
+        dest: "{{ db_seed_file }}"
+        mode: '0644'
+
+    - name: Execute the seed SQL file
+      shell: |
+        mysql -u {{ mysql_user }} -p'{{ mysql_password }}' {{ database_name }} < {{ db_seed_file }}

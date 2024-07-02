@@ -3,13 +3,6 @@
   hosts: backup
   become: yes
   tasks:
-    - name: Ensure MySQL client is installed on the backup VM
-      apt:
-        name: mysql-client
-        state: present
-
-    - name: Backup MySQL database on the database VM from the backup VM
-      shell: mysqldump -u pilar -p'pilar' -h 10.0.26.5 concierto > /tmp/concierto_backup.sql
 
     - name: Install dependencies for Azure CLI on the backup VM
       apt:
@@ -35,13 +28,6 @@
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: Install Azure CLI on the backup VM
-      apt:
-        name: azure-cli
-        state: present
+ 
 
-    - name: Upload backup to Azure Storage
-      shell: |
-        az storage blob upload --account-name stapalonso --account-key ${{ azure_storage_key }} --container-name tfstate --name concierto_backup.sql --file /tmp/concierto_backup.sql
-      environment:
-        azure_storage_key: "{{ azure_storage_key }}"
+   

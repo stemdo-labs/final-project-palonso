@@ -4,7 +4,7 @@ metadata:
   name: my-concert-app-service
 spec:
   type: LoadBalancer
-  loadBalancerIP: 104.46.58.141
+  loadBalancerIP: 85.210.88.184
   selector:
     app: my-concert-app
   ports:
