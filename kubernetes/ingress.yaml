@@ -7,10 +7,10 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: 85.210.88.184.nip.io
+  - host: my-concert-app.local
     http:
       paths:
-      - path: /app
+      - path: /app(/|$)(.*)
         pathType: Prefix
         backend:
           service:

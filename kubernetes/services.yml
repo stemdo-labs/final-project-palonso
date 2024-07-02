@@ -4,7 +4,7 @@ metadata:
   name: my-concert-app-service
   namespace: ns-palonso
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
     app: my-concert-app
   ports:
