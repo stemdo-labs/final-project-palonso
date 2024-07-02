@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: my-concert-app-service
+  namespace: ns-palonso
 spec:
   type: LoadBalancer
   loadBalancerIP: 85.210.88.184
