@@ -34,13 +34,11 @@ jobs:
         run: |
           az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP_NAME_AKS }} --name ${{ secrets.CLUSTER_NAME }} --overwrite-existing
 
-      - name: Install Azure CLI
-        run: |
-          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
       - name: Install kubelogin
         run: |
-          az extension add --name k8s-extension
+          curl -Lo kubelogin.zip https://github.com/Azure/kubelogin/releases/latest/download/kubelogin-linux-amd64.zip
+          unzip kubelogin.zip -d /usr/local/bin
+          rm kubelogin.zip
 
       - name: Convert kubeconfig
         run: |
