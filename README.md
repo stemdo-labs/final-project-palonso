@@ -221,6 +221,43 @@ Haremos que la vm_back up sea self hosted :
 en ese playbook se pasa la variable que sube la copia de backup al storage account para que desde el playbook de ansible se pueda utilizar.
 y haré el sembrado de la base de datos manualmente.
 
+# Retag
+
+
+```plaintext
+1. Actualización de composer.json
+       |
+       V
+2. Push a Repositorio GitHub
+       |
+       V
+3. CI Pipeline - Construcción y Publicación de Imagen Docker
+   ├── Checkout del repositorio
+   ├── Obtener versión de composer.json
+   ├── Iniciar sesión en Azure
+   ├── Obtener contraseña del ACR
+   ├── Iniciar sesión en ACR
+   ├── Construir imagen Docker
+   └── Publicar imagen Docker
+       |
+       V
+4. CD Pipeline - Despliegue en AKS
+   ├── Checkout del repositorio
+   ├── Obtener versión de composer.json
+   ├── Establecer cuenta de Azure
+   ├── Obtener credenciales de AKS
+   ├── Instalar Azure CLI
+   ├── Instalar kubelogin
+   ├── Convertir kubeconfig
+   ├── Reemplazar ${VERSION} en deployment.yaml
+   ├── Aplicar manifiestos de Kubernetes
+   ├── Actualizar imagen del despliegue
+   ├── Obtener todos los recursos en ns-palonso
+   ├── Aplicar controlador de Ingress
+   ├── Obtener pods del controlador de Ingress
+   └── Obtener servicio del controlador de Ingress
+```
+
 # Disaster recovery
 
 El objetivo del proceso de disaster recovery es restaurar la base de datos MySQL desde el último respaldo almacenado en Azure Blob Storage. Este procedimiento es crucial para garantizar la continuidad del servicio en caso de una falla catastrófica.
