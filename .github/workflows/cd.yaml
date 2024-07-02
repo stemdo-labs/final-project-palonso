@@ -41,6 +41,7 @@ jobs:
       - name: Install kubelogin
         run: |
           az extension add --name k8s-extension
+          az extension add --name k8s-extension
 
       - name: Convert kubeconfig
         run: |
@@ -48,6 +49,7 @@ jobs:
 
       - name: Apply Kubernetes manifests
         run: |
+          kubectl apply -f kubernetes/. -n ns-palonso
           kubectl apply -f kubernetes/. -n ns-palonso
 
       - name: Update deployment image
