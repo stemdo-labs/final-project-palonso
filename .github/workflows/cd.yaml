@@ -1,25 +1,47 @@
-name: CD for Application
+name: CD for Application and K8s Deploy
 
 on:
-  workflow_run:
-    workflows: ["CI for Application"]
-    types:
-      - completed
-    branches:
-      - 'prod'
-
+  workflow_dispatch:
+    
 jobs:
-  deploy-to-aks:
+  build-and-deploy:
     runs-on: ubuntu-latest
+   
+ 
+    defaults:
+      run:
+        shell: bash
 
     steps:
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v1
-        with:
-          version: 'latest'
+      - name: Get version from composer.json
+        id: get_version
+        run: | 
+          echo "version=$(jq -r .version app/composer.json)" >> "$GITHUB_OUTPUT"
+          VERSION=$(jq -r '.version' app/composer.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Deploy to AKS
-        run: kubectl apply -f kubernetes/
+      - name: Connection to cluster
+        run: |
+          az acr login --name ${{ secrets.ACR_USERNAME }}
+          az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
+          az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP_NAME_AKS }} --name ${{ secrets.CLUSTER_NAME }} --overwrite-existing
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          (echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/runner/.bashrc
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          sudo apt-get install build-essential
+          brew install Azure/kubelogin/kubelogin
+          kubelogin convert-kubeconfig -l azurecli
+          kubectl apply -f kubernetes/.  -n ns-palonso
+          kubectl set image deployment/deploy-concert concertapp=palonsoacr.azurecr.io/my-concert-app:${{ inputs.tag }} -n ns-palonso
+          kubectl get all -n ns-palonso
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml
+          kubectl get pods --namespace ingress-nginx
+          kubectl get service ingress-nginx-controller --namespace=ingress-nginx

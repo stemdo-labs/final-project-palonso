@@ -22,7 +22,7 @@ jobs:
       - name: Get version from composer.json
         id: get_version
         run: |
-          VERSION=$(jq -r '.version' composer.json)
+          VERSION=$(jq -r '.version' app/composer.json)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Log in to Azure
@@ -41,7 +41,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t palonsoacr.azurecr.io/my-concert-app:${{ env.VERSION }} -t palonsoacr.azurecr.io/my-concert-app:latest .
+          docker build -t palonsoacr.azurecr.io/my-concert-app:${{ env.VERSION }} -t palonsoacr.azurecr.io/my-concert-app:latest -f app/Dockerfile .
         working-directory: .
 
       - name: Push Docker image
