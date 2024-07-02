@@ -2,11 +2,7 @@ name: CI for Application
 
 on:
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to deploy from'
-        default: 'main'
-        required: true
+
 
 jobs:
   build-and-test:
