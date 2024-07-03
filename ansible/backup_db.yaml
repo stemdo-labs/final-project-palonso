@@ -5,7 +5,7 @@
   vars:
     mysql_user: "pilar"
     mysql_password: "pilar"
-    mysql_host: "10.0.26.5"
+    mysql_host: "10.0.26.4"
     database_name: "concierto"
     backup_file: "/tmp/concierto_backup.sql"
     azure_account_name: "stapalonso"
