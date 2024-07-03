@@ -6,7 +6,7 @@
         protected $conexion;
  
         public function __construct(){
-            $this->conexion = new PDO('mysql:host=10.0.26.5;dbname='.$this->bbdd, $this->username, $this->password);
+            $this->conexion = new PDO('mysql:host=10.0.26.4;dbname='.$this->bbdd, $this->username, $this->password);
         }
     }
 ?>
