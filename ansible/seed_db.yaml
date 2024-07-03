@@ -4,7 +4,7 @@
   become: yes
   vars:
     db_seed_file: "/tmp/concierto-bd.sql"
-    mysql_user: "root"
+    mysql_user: "pilar"
     mysql_password: "pilar"
     database_name: "concierto"
 

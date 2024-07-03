@@ -14,27 +14,29 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
-      - name: Install Ansible on Remote
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@51.145.79.188 'sudo apt update && sudo apt install ansible -y'
 
       - name: Remove existing ansible folder on Remote
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@51.145.79.188 'rm -rf /home/adminuser/ansible'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 '[ -d /home/adminuser2/ansible ] && rm -rf /home/adminuser2/ansible || echo "Directory does not exist"'
+
+     
 
       - name: Copy Playbooks to Remote
         run: |
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./ansible adminuser@51.145.79.188:/home/adminuser/ansible
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./ansible adminuser2@172.167.143.214:/home/adminuser2/ansible
+
+      - name: Run Setup DB Playbook
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/setup_db.yaml'
+
+      - name: Seed the Database
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/seed_db.yaml'
 
       - name: Run Backup Playbook
         env:
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@51.145.79.188 'ansible-playbook -i /home/adminuser/ansible/inventory.ini /home/adminuser/ansible/setup_backup.yaml -e "azure_storage_key=${AZURE_STORAGE_KEY}"'
-
-      - name: Run Setup DB Playbook
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@51.145.79.188 'ansible-playbook -i /home/adminuser/ansible/inventory.ini /home/adminuser/ansible/setup_db.yaml'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/backup_db.yaml -e "azure_storage_key=${AZURE_STORAGE_KEY}"'
