@@ -17,11 +17,22 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
+      - name: Add remote host to known hosts
+        run: |
+          ssh-keyscan 172.167.143.214 >> ~/.ssh/known_hosts
+          ssh-keyscan 10.0.26.4 >> ~/.ssh/known_hosts
+
+      - name: Ensure SSH key is added to remote authorized_keys
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 'mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo "${{ secrets.SSH_PRIVATE_KEY }}" | ssh adminuser@10.0.26.4 "cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"'
+
       - name: Remove existing ansible folder on Remote
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 '[ -d /home/adminuser2/ansible ] && rm -rf /home/adminuser2/ansible || echo "Directory does not exist"'
 
-     
+      - name: Create ansible directory on Remote
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 'mkdir -p /home/adminuser2/ansible'
 
       - name: Copy Playbooks to Remote
         run: |
