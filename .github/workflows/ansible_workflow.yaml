@@ -23,19 +23,19 @@ jobs:
 
       - name: Remove existing ansible folder on Remote
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 '[ -d /home/adminuser2/ansible ] && rm -rf /home/adminuser/ansible || echo "Directory does not exist"'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 '[ -d /home/adminuser2/ansible ] && rm -rf /home/adminuser2/ansible || echo "Directory does not exist"'
 
       
 
       - name: Copy Playbooks to Remote
         run: |
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./ansible adminuser2@172.167.143.214:/home/adminuser/ansible
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./ansible adminuser2@172.167.143.214:/home/adminuser2/ansible
 
       - name: Run Backup Playbook
         env:
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 'ansible-playbook -i /home/adminuser/ansible/inventory.ini /home/adminuser/ansible/setup_backup.yaml -e "azure_storage_key=${AZURE_STORAGE_KEY}"'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/setup_backup.yaml -e "azure_storage_key=${AZURE_STORAGE_KEY}"'
 
       - name: Run Setup DB Playbook
         run: |
