@@ -21,9 +21,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 '[ -d /home/adminuser2/ansible ] && rm -rf /home/adminuser2/ansible || echo "Directory does not exist"'
 
-      - name: Create ansible directory on Remote
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 'mkdir -p /home/adminuser2/ansible'
+     
 
       - name: Copy Playbooks to Remote
         run: |
