@@ -14,7 +14,7 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
       - name: Install Ansible on Remote
@@ -24,6 +24,10 @@ jobs:
       - name: Remove existing ansible folder on Remote
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 '[ -d /home/adminuser/ansible ] && rm -rf /home/adminuser/ansible || echo "Directory does not exist"'
+
+      - name: Create ansible directory on Remote
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 'mkdir -p /home/adminuser/ansible'
 
       - name: Copy Playbooks to Remote
         run: |
