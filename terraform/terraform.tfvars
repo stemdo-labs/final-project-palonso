@@ -25,4 +25,4 @@ public_ip = true
 
 # Nombre del NSG
 nsg_name = "default-nsg"
-admin_password = "P@ssw0rd2023!"
+admin_password = "P@sssw0rd2023!"
