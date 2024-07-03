@@ -46,7 +46,7 @@ module "db_vm" {
   vm_size             = var.db_vm_size
   nsg_id              = module.nsg.nsg_id
   admin_username      = "adminuser"
-  admin_password      = var.admin_password
+  admin_password      = "P@ssw0rd2023!"
 }
 
 # VM de backup
@@ -60,7 +60,7 @@ module "backup_vm" {
   nsg_id              = module.nsg.nsg_id
   public_ip           = var.public_ip
   admin_username      = "adminuser2"
-  admin_password      = var.admin_password
+  admin_password      = "P@ssw0rd2023!"
 }
 
 # Módulo de Load Balancer
