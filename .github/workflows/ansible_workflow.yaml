@@ -23,7 +23,7 @@ jobs:
 
       - name: Remove existing ansible folder on Remote
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 'rm -rf /home/adminuser/ansible'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@172.167.143.214 '[ -d /home/adminuser/ansible ] && rm -rf /home/adminuser/ansible || echo "Directory does not exist"'
 
       - name: Copy Playbooks to Remote
         run: |
