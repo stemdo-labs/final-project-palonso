@@ -23,12 +23,15 @@ jobs:
           echo "ARM_SUBSCRIPTION_ID=${{ secrets.SUBSCRIPTION_ID }}" >> $GITHUB_ENV
           echo "ARM_TENANT_ID=${{ secrets.TENANT_ID }}" >> $GITHUB_ENV
 
-      - name: Delete Managed Disks
+      - name: Stop VMs
         run: |
-          az disk delete --name backup-vm-osdisk --resource-group rg-palonso --yes --no-wait
-          az disk delete --name db-vm-osdisk --resource-group rg-palonso --yes --no-wait
+          az vm deallocate --resource-group rg-palonso --name backup-vm
+          az vm deallocate --resource-group rg-palonso --name db-vm
 
-      
+      - name: Detach Disks from VMs
+        run: |
+          az vm disk detach --resource-group rg-palonso --vm-name backup-vm --name backup-vm-osdisk
+          az vm disk detach --resource-group rg-palonso --vm-name db-vm --name db-vm-osdisk
 
       - name: Terraform Init
         run: terraform init
@@ -41,3 +44,8 @@ jobs:
       - name: Terraform Destroy
         run: terraform destroy -auto-approve
         working-directory: ./terraform
+
+      - name: Delete Managed Disks
+        run: |
+          az disk delete --name backup-vm-osdisk --resource-group rg-palonso --yes --no-wait
+          az disk delete --name db-vm-osdisk --resource-group rg-palonso --yes --no-wait
