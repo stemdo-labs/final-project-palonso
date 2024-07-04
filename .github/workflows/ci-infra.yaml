@@ -1,9 +1,10 @@
 name: CI for Infrastructure
 
 on:
-  push:
+  workflow_dispatch:
+  pull_request:
     branches:
-      - palonso-iac-b
+      - main
 
 jobs:
   terraform-plan:
