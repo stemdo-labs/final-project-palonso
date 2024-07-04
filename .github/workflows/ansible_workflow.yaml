@@ -61,7 +61,6 @@ jobs:
 
       - name: Verify SSH connectivity from Backup VM to DB VM
         run: |
-          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser@${{ env.IP_PUBLIC_VM_BACKUP }} 'ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PRIVATE_VM_DB }} echo "SSH connectivity is working"'
           sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }} 'ssh -o StrictHostKeyChecking=no adminuser@${{ env.IP_PRIVATE_VM_DB }} echo "SSH connectivity is working"'
 
       - name: Remove existing ansible folder on Backup VM
