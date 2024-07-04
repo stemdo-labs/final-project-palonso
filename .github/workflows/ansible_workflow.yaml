@@ -33,6 +33,7 @@ jobs:
       - name: Get Public IP of VMs
         id: get-ips
         run: |
+          az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
           IP_BACKUP=$(az vm list-ip-addresses --resource-group rg-palonso --name backup-vm --query "[].virtualMachine.network.publicIpAddresses[*].ipAddress" -o tsv)
           IP_DB=$(az vm list-ip-addresses --resource-group rg-palonso --name db-vm --query "[].virtualMachine.network.publicIpAddresses[*].ipAddress" -o tsv)
           echo "IP_PUBLIC_VM_BACKUP=$IP_BACKUP" >> $GITHUB_ENV
