@@ -257,6 +257,8 @@ y haré el sembrado de la base de datos manualmente.
    ├── Obtener pods del controlador de Ingress
    └── Obtener servicio del controlador de Ingress
 ```
+# Prueba de acceso a través del ingress
+![image](https://github.com/stemdo-labs/final-project-palonso/assets/166375061/85cf01e9-29b2-4be9-86bb-e60f8c6779a3)
 
 # Disaster recovery
 
