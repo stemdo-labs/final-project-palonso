@@ -35,15 +35,16 @@ resource "azurerm_virtual_machine" "vm" {
     name              = "${var.name}-osdisk"
     caching           = "ReadWrite"
     create_option     = "FromImage"
-    managed_disk_type = "22_04-lts"
+    managed_disk_type = "Standard_LRS"
   }
 
   storage_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
+    sku       = "22_04-lts"
     version   = "latest"
   }
+  
 
   os_profile {
     computer_name  = var.name
