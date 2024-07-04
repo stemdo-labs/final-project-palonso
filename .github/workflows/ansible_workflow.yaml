@@ -29,7 +29,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-            
+
       - name: Get Public IP of Backup VM and Private IP of DB VM
         id: get-ips
         run: |
@@ -55,9 +55,13 @@ jobs:
         run: |
           sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }} 'chmod 600 ~/.ssh/id_rsa'
 
+      - name: Copy public key to DB VM
+        run: |
+          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }} "sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser@${{ env.IP_PRIVATE_VM_DB }} 'mkdir -p ~/.ssh && echo \"$(cat ~/.ssh/id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
+
       - name: Verify SSH connectivity from Backup VM to DB VM
         run: |
-          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }} 'ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PRIVATE_VM_DB }} echo "SSH connectivity is working"'
+          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }} 'ssh -o StrictHostKeyChecking=no adminuser@${{ env.IP_PRIVATE_VM_DB }} echo "SSH connectivity is working"'
 
       - name: Remove existing ansible folder on Backup VM
         run: |
