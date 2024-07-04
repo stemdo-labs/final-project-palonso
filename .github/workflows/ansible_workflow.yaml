@@ -16,7 +16,7 @@ jobs:
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
       - name: Install sshpass
-        run: sudo apt-get install -y sshpass  # Instala sshpass en la máquina de GitHub Actions
+        run: sudo apt-get install -y sshpass
 
       - name: Setup SSH key
         run: |
@@ -30,57 +30,48 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Get Public IP of Backup VM and Private IP of DB VM
-        id: get-ips
-        run: |
-          IP_BACKUP=$(az vm list-ip-addresses --resource-group rg-palonso --name backup-vm --query "[].virtualMachine.network.publicIpAddresses[*].ipAddress" -o tsv)
-          IP_DB=$(az vm list-ip-addresses --resource-group rg-palonso --name db-vm --query "[].virtualMachine.network.privateIpAddresses[*].ipAddress" -o tsv)
-          echo "IP_PUBLIC_VM_BACKUP=$IP_BACKUP" >> $GITHUB_ENV
-          echo "IP_PRIVATE_VM_DB=$IP_DB" >> $GITHUB_ENV
-
       - name: Add Backup VM to known hosts
         run: |
-          ssh-keyscan -H ${{ env.IP_PUBLIC_VM_BACKUP }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.IP_PUBLIC_VM_BACKUP }} >> ~/.ssh/known_hosts
 
       - name: Install Ansible on Backup VM
         run: |
-          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }} 'sudo apt-get update && sudo apt-get install -y ansible'
+          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ secrets.IP_PUBLIC_VM_BACKUP }} 'sudo apt-get update && sudo apt-get install -y ansible'
 
       - name: Copy SSH Key to Backup VM
         run: |
-          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }} 'mkdir -p ~/.ssh'
-          sshpass -p 'P@ssw0rd2023!' scp -o StrictHostKeyChecking=no ~/.ssh/id_rsa adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }}:/home/adminuser2/.ssh/id_rsa
+          sshpass -p 'P@ssw0rd2023!' scp -o StrictHostKeyChecking=no ~/.ssh/id_rsa adminuser2@${{ secrets.IP_PUBLIC_VM_BACKUP }}:/home/adminuser2/.ssh/id_rsa
 
       - name: Set Permissions on Backup VM
         run: |
-          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }} 'chmod 600 ~/.ssh/id_rsa'
+          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ secrets.IP_PUBLIC_VM_BACKUP }} 'chmod 600 ~/.ssh/id_rsa'
 
       - name: Copy public key to DB VM
         run: |
-          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }} "sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser@${{ env.IP_PRIVATE_VM_DB }} 'mkdir -p ~/.ssh && echo \"$(cat ~/.ssh/id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
+          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ secrets.IP_PUBLIC_VM_BACKUP }} "sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser@10.0.26.4 'mkdir -p ~/.ssh && echo \"$(cat ~/.ssh/id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
 
       - name: Verify SSH connectivity from Backup VM to DB VM
         run: |
-          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }} 'ssh -o StrictHostKeyChecking=no adminuser@${{ env.IP_PRIVATE_VM_DB }} echo "SSH connectivity is working"'
+          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ secrets.IP_PUBLIC_VM_BACKUP }} 'ssh -o StrictHostKeyChecking=no adminuser@10.0.26.4 echo "SSH connectivity is working"'
 
       - name: Remove existing ansible folder on Backup VM
         run: |
-          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }} '[ -d /home/adminuser2/ansible ] && rm -rf /home/adminuser2/ansible || echo "Directory does not exist"'
+          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ secrets.IP_PUBLIC_VM_BACKUP }} '[ -d /home/adminuser2/ansible ] && rm -rf /home/adminuser2/ansible || echo "Directory does not exist"'
 
       - name: Copy Playbooks to Backup VM
         run: |
-          sshpass -p 'P@ssw0rd2023!' scp -o StrictHostKeyChecking=no -r ./ansible adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }}:/home/adminuser2/ansible
+          sshpass -p 'P@ssw0rd2023!' scp -o StrictHostKeyChecking=no -r ./ansible adminuser2@${{ secrets.IP_PUBLIC_VM_BACKUP }}:/home/adminuser2/ansible
 
       - name: Run Setup DB Playbook
         run: |
-          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }} 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/setup_db.yaml'
+          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ secrets.IP_PUBLIC_VM_BACKUP }} 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/setup_db.yaml'
 
       - name: Seed the Database
         run: |
-          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }} 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/seed_db.yaml'
+          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ secrets.IP_PUBLIC_VM_BACKUP }} 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/seed_db.yaml'
 
       - name: Run Backup Playbook
         env:
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |
-          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ env.IP_PUBLIC_VM_BACKUP }} 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/backup_db.yaml -e "azure_storage_key=${AZURE_STORAGE_KEY}"'
+          sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ secrets.IP_PUBLIC_VM_BACKUP }} 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/backup_db.yaml -e "azure_storage_key=${AZURE_STORAGE_KEY}"'
