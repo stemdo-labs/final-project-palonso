@@ -38,11 +38,12 @@ resource "azurerm_virtual_machine" "vm" {
     managed_disk_type = "Standard_LRS"
   }
 
+ 
   storage_image_reference {
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-jammy"
     sku       = "22_04-lts"
-    version   = "latest"
+    version   = "22.04.202407010"
   }
   
 
