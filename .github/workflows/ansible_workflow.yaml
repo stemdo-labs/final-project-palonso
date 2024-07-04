@@ -16,7 +16,7 @@ jobs:
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
       - name: Install sshpass
-        run: sudo apt-get install -y sshpass
+        run: sudo apt-get install -y sshpass  # Instala sshpass en la máquina de GitHub Actions
 
       - name: Setup SSH key
         run: |
