@@ -11,32 +11,41 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
+      - name: Get Public IP of VM
+        id: get-ip
+        run: |
+          IP=$(az vm list-ip-addresses --resource-group rg-palonso --name backup-vm --query "[].virtualMachine.network.publicIpAddresses[*].ipAddress" -o tsv)
+          echo "IP_PUBLIC_VM_BACKUP=$IP" >> $GITHUB_ENV
+
       - name: Remove existing ansible folder on Remote
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@20.0.187.7 '[ -d /home/adminuser2/ansible ] && rm -rf /home/adminuser2/ansible || echo "Directory does not exist"'
-
-     
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@$IP_PUBLIC_VM_BACKUP '[ -d /home/adminuser2/ansible ] && rm -rf /home/adminuser2/ansible || echo "Directory does not exist"'
 
       - name: Copy Playbooks to Remote
         run: |
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./ansible adminuser2@20.0.187.7:/home/adminuser2/ansible
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./ansible adminuser2@$IP_PUBLIC_VM_BACKUP:/home/adminuser2/ansible
 
       - name: Run Setup DB Playbook
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@20.0.187.7 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/setup_db.yaml'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@$IP_PUBLIC_VM_BACKUP 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/setup_db.yaml'
 
       - name: Seed the Database
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@20.0.187.7 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/seed_db.yaml'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@$IP_PUBLIC_VM_BACKUP 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/seed_db.yaml'
 
       - name: Run Backup Playbook
         env:
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@20.0.187.7 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/backup_db.yaml -e "azure_storage_key=${AZURE_STORAGE_KEY}"'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser2@$IP_PUBLIC_VM_BACKUP 'ansible-playbook -i /home/adminuser2/ansible/inventory.ini /home/adminuser2/ansible/backup_db.yaml -e "azure_storage_key=${AZURE_STORAGE_KEY}"'
