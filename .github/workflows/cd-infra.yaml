@@ -1,7 +1,7 @@
 name: CD for Infrastructure
 
 on:
-  workflow_call:
+  workflow_dispatch:
 
 
 jobs:

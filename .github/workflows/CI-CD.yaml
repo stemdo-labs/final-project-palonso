@@ -43,29 +43,25 @@ jobs:
         if: ${{ steps.filter.outputs.app == 'true' }}
         run: echo "::set-output name=app_changed::true"
 
-  # Se ejecutan solo en dev cuando cambien los ficheros correspondientes
   trigger-ci-infra:
     needs: conditional-workflow-trigger
     if: ${{ needs.conditional-workflow-trigger.outputs.infra_changed == 'true' && github.ref == 'refs/heads/dev' }}
     uses: ./.github/workflows/ci-infra.yaml
     secrets: inherit
 
-  # Aprobación manual antes de ejecutar cd-for-infrastructure
-  manual-approval:
+  # Trabajo de espera para la aprobación manual
+  wait-for-approval:
     needs: trigger-ci-infra
     if: ${{ needs.trigger-ci-infra.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Awaiting approval
-        uses: chetan/invoke-approval-action@v1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          APPROVAL_CONTEXT: "Approve deployment to infrastructure"
+        run: echo "Waiting for manual approval. Please approve the workflow dispatch event to continue."
 
   # Ejecución del workflow cd-infra después de la aprobación manual
   cd-for-infrastructure:
-    needs: manual-approval
-    if: ${{ needs.manual-approval.result == 'success' }}
+    needs: wait-for-approval
+    if: ${{ needs.wait-for-approval.result == 'success' }}
     uses: ./.github/workflows/cd-infra.yaml
     secrets: inherit
 
