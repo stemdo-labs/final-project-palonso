@@ -15,6 +15,9 @@ on:
 jobs:
   conditional-workflow-trigger:
     runs-on: ubuntu-latest
+    outputs:
+      infra_changed: ${{ steps.set-output-infra.outputs.infra_changed }}
+      app_changed: ${{ steps.set-output-app.outputs.app_changed }}
 
     steps:
       - uses: actions/checkout@v2
@@ -39,11 +42,6 @@ jobs:
         id: set-output-app
         if: ${{ steps.filter.outputs.app == 'true' }}
         run: echo "::set-output name=app_changed::true"
-
-      - name: Output environment variables
-        run: |
-          echo "infra_changed=${{ steps.set-output-infra.outputs.infra_changed }}"
-          echo "app_changed=${{ steps.set-output-app.outputs.app_changed }}"
 
   # Se ejecutan solo en dev cuando cambien los ficheros correspondientes
   trigger-ci-infra:
