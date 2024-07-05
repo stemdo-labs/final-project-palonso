@@ -1,11 +1,7 @@
 name: CI for Application
 
 on:
-  push:
-    branches:
-      - main
-      #modificaar
-  workflow_dispatch:
+  workflow_call:
 
 jobs:
   build-and-test:
