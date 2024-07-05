@@ -3,8 +3,7 @@ name: CD for Infrastructure
 on:
   workflow_run:
     workflows: ["CI for Infrastructure"]
-    types:
-      - completed
+    types: [completed]
     branches:
       - 'main'
       - 'dev'
@@ -22,9 +21,9 @@ jobs:
         id: determine-env
         run: |
           if [ "${{ github.ref }}" == "refs/heads/dev" ]; then
-            echo "env_name=development" >> $GITHUB_ENV
+            echo "env_name=dev" >> $GITHUB_ENV
           else
-            echo "env_name=production" >> $GITHUB_ENV
+            echo "env_name=prod" >> $GITHUB_ENV
           fi
 
       - name: Log in to Azure
