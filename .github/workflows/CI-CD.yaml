@@ -50,6 +50,13 @@ jobs:
     uses: ./.github/workflows/ci-infra.yaml
     secrets: inherit
 
+  cd-for-infrastructure:
+    needs: trigger-ci-infra
+    if: success()
+    uses: ./.github/workflows/cd-infra.yaml
+    secrets: inherit
+  
+
   trigger-ci-app:
     needs: conditional-workflow-trigger
     if: ${{ needs.conditional-workflow-trigger.outputs.app_changed == 'true' && github.ref == 'refs/heads/dev' }}
