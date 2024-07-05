@@ -31,27 +31,29 @@ jobs:
               - 'app/**'
 
       - name: Set output for infra
+        id: set-output-infra
         if: ${{ steps.filter.outputs.infra == 'true' }}
-        run: echo "infra_changed=true" >> $GITHUB_ENV
+        run: echo "::set-output name=infra_changed::true"
 
       - name: Set output for app
+        id: set-output-app
         if: ${{ steps.filter.outputs.app == 'true' }}
-        run: echo "app_changed=true" >> $GITHUB_ENV
+        run: echo "::set-output name=app_changed::true"
 
       - name: Output environment variables
         run: |
-          echo "infra_changed=${{ env.infra_changed }}"
-          echo "app_changed=${{ env.app_changed }}"
+          echo "infra_changed=${{ steps.set-output-infra.outputs.infra_changed }}"
+          echo "app_changed=${{ steps.set-output-app.outputs.app_changed }}"
 
   # Se ejecutan solo en dev cuando cambien los ficheros correspondientes
   trigger-ci-infra:
     needs: conditional-workflow-trigger
-    if: needs.conditional-workflow-trigger.outputs.infra_changed == 'true' && github.ref == 'refs/heads/dev'
+    if: ${{ needs.conditional-workflow-trigger.outputs.infra_changed == 'true' && github.ref == 'refs/heads/dev' }}
     uses: ./.github/workflows/ci-infra.yaml
     secrets: inherit
 
   trigger-ci-app:
     needs: conditional-workflow-trigger
-    if: needs.conditional-workflow-trigger.outputs.app_changed == 'true' && github.ref == 'refs/heads/dev'
+    if: ${{ needs.conditional-workflow-trigger.outputs.app_changed == 'true' && github.ref == 'refs/heads/dev' }}
     uses: ./.github/workflows/ci.yaml
     secrets: inherit
