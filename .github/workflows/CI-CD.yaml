@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # Determina qué cambios se han realizado en la última push o en la PR
+      # Determina qué cambios se han realizado 
       - name: Set up Path Filter
         uses: dorny/paths-filter@v2
         id: filter
