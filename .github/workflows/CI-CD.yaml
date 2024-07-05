@@ -19,10 +19,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # Determina qué cambios se han realizado 
+      # Determina qué cambios se han realizado
       - name: Set up Path Filter
-        uses: dorny/paths-filter@v2
         id: filter
+        uses: dorny/paths-filter@v2
         with:
           filters: |
             infra:
@@ -30,12 +30,32 @@ jobs:
             app:
               - 'app/**'
 
-      # CI/CD para infraestructura si se modifican archivos Terraform
-      - name: Trigger CI for Infrastructure
-        if: ${{ github.ref == 'refs/heads/dev' && steps.filter.outputs.infra == 'true' }}
-        uses: ./.github/workflows/ci-infra.yml
+      - name: Set output for infra
+        if: ${{ steps.filter.outputs.infra == 'true' }}
+        run: echo "infra_changed=true" >> $GITHUB_ENV
 
-      # CI/CD para la aplicación si se modifican archivos en la carpeta app
-      - name: Trigger CI for App
-        if: ${{ github.ref == 'refs/heads/dev' && steps.filter.outputs.app == 'true' }}
-        uses: ./.github/workflows/ci.yml
+      - name: Set output for app
+        if: ${{ steps.filter.outputs.app == 'true' }}
+        run: echo "app_changed=true" >> $GITHUB_ENV
+
+      - name: Output environment variables
+        run: |
+          echo "infra_changed=${{ env.infra_changed }}"
+          echo "app_changed=${{ env.app_changed }}"
+
+  # Se ejecutan solo en dev cuando cambien los ficheros correspondientes
+  trigger-ci-infra:
+    needs: conditional-workflow-trigger
+    if: needs.conditional-workflow-trigger.outputs.infra_changed == 'true' && github.ref == 'refs/heads/dev'
+    uses: ./.github/workflows/ci-infra.yml
+    with:
+      directory: ./terraform
+    secrets: inherit
+
+  trigger-ci-app:
+    needs: conditional-workflow-trigger
+    if: needs.conditional-workflow-trigger.outputs.app_changed == 'true' && github.ref == 'refs/heads/dev'
+    uses: ./.github/workflows/ci.yml
+    with:
+      directory: ./app
+    secrets: inherit
