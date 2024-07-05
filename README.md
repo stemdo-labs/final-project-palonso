@@ -260,6 +260,10 @@ y haré el sembrado de la base de datos manualmente.
 # Prueba de acceso a través del ingress
 ![image](https://github.com/stemdo-labs/final-project-palonso/assets/166375061/85cf01e9-29b2-4be9-86bb-e60f8c6779a3)
 
+# CI/CD PIPELINE
+![image](https://github.com/stemdo-labs/final-project-palonso/assets/166375061/65f35329-bc54-462b-808f-73a520b9fac3)
+
+
 # Disaster recovery
 
 El objetivo del proceso de disaster recovery es restaurar la base de datos MySQL desde el último respaldo almacenado en Azure Blob Storage. Este procedimiento es crucial para garantizar la continuidad del servicio en caso de una falla catastrófica.
