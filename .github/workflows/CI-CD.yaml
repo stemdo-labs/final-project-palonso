@@ -33,9 +33,9 @@ jobs:
       # CI/CD para infraestructura si se modifican archivos Terraform
       - name: Trigger CI for Infrastructure
         if: ${{ github.ref == 'refs/heads/dev' && steps.filter.outputs.infra == 'true' }}
-        uses: ./.github/workflows/ci-infra.yaml
+        uses: ./.github/workflows/ci-infra.yml
 
       # CI/CD para la aplicación si se modifican archivos en la carpeta app
       - name: Trigger CI for App
         if: ${{ github.ref == 'refs/heads/dev' && steps.filter.outputs.app == 'true' }}
-        uses: ./.github/workflows/ci.yaml
+        uses: ./.github/workflows/ci.yml

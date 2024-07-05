@@ -2,14 +2,15 @@ name: CI for Infrastructure
 
 on:
   workflow_call:
-  
 
 jobs:
   terraform-plan:
     runs-on: ubuntu-latest
 
     steps:
-     
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Log in to Azure
         uses: azure/login@v1
         with:
