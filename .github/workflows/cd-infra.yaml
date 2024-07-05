@@ -6,7 +6,8 @@ on:
     types:
       - completed
     branches:
-      - 'palonso-iac-b'
+      - 'dev'
+      - 'main'
 
 jobs:
   apply-infra:
@@ -33,6 +34,7 @@ jobs:
         working-directory: ./terraform
 
       - name: Import existing resource group
+        if: ${{ github.ref == 'refs/heads/main' }}
         run: terraform import azurerm_resource_group.main "/subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/rg-palonso"
         working-directory: ./terraform
 
