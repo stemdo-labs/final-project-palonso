@@ -50,12 +50,24 @@ jobs:
     uses: ./.github/workflows/ci-infra.yaml
     secrets: inherit
 
-  cd-for-infrastructure:
+  # Aprobación manual antes de ejecutar cd-for-infrastructure
+  manual-approval:
     needs: trigger-ci-infra
-    if: success()
+    if: ${{ needs.trigger-ci-infra.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Awaiting approval
+        uses: chetan/invoke-approval-action@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPROVAL_CONTEXT: "Approve deployment to infrastructure"
+
+  # Ejecución del workflow cd-infra después de la aprobación manual
+  cd-for-infrastructure:
+    needs: manual-approval
+    if: ${{ needs.manual-approval.result == 'success' }}
     uses: ./.github/workflows/cd-infra.yaml
     secrets: inherit
-  
 
   trigger-ci-app:
     needs: conditional-workflow-trigger
