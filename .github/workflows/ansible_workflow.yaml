@@ -5,7 +5,7 @@ on:
 
 jobs:
   run-ansible:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout repository
@@ -51,6 +51,9 @@ jobs:
           sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ secrets.IP_PUBLIC_VM_BACKUP }} "sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser@10.0.26.4 'mkdir -p ~/.ssh && echo \"$(cat ~/.ssh/id_rsa.pub)\" >> ~/.ssh/authorized_keys'"
 
       - name: Verify SSH connectivity from Backup VM to DB VM
+
+      - name: Get Public IP of VM
+        id: get-ip
         run: |
           sshpass -p 'P@ssw0rd2023!' ssh -o StrictHostKeyChecking=no adminuser2@${{ secrets.IP_PUBLIC_VM_BACKUP }} 'ssh -o StrictHostKeyChecking=no adminuser@10.0.26.4 echo "SSH connectivity is working"'
 
