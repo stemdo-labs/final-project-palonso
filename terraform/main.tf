@@ -71,7 +71,7 @@ module "load_balancer" {
 }
 
 # Azure Container Registry (ACR)
-resource "azurerm_container_registry" "acr" {
+resource "azurerm_container_registry" "acrDev" {
   name                = "palonsoACRDev"
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location
@@ -79,8 +79,8 @@ resource "azurerm_container_registry" "acr" {
   admin_enabled       = true
 }
 # Azure Container Registry (ACR) prod
-resource "azurerm_container_registry" "acr" {
-  name                = "palonsoARprod"
+resource "azurerm_container_registry" "acrProd" {
+  name                = "palonsoARProd"
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location
   sku                 = "Basic"
