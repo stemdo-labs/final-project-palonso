@@ -47,7 +47,7 @@ jobs:
   trigger-ci-infra:
     needs: conditional-workflow-trigger
     if: needs.conditional-workflow-trigger.outputs.infra_changed == 'true' && github.ref == 'refs/heads/dev'
-    uses: ./.github/workflows/ci-infra.yml
+    uses: ./.github/workflows/ci-infra.yaml
     with:
       directory: ./terraform
     secrets: inherit
@@ -55,7 +55,7 @@ jobs:
   trigger-ci-app:
     needs: conditional-workflow-trigger
     if: needs.conditional-workflow-trigger.outputs.app_changed == 'true' && github.ref == 'refs/heads/dev'
-    uses: ./.github/workflows/ci.yml
+    uses: ./.github/workflows/ci.yaml
     with:
       directory: ./app
     secrets: inherit
