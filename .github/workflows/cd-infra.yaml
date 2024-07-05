@@ -2,13 +2,13 @@ name: CD for Infrastructure
 
 on:
   workflow_run:
-    workflows: ["trigger-ci-infra"]
+    workflows: ["CI for Infrastructure"]
     types:
       - completed
     branches:
       - 'dev'
       - 'main'
-  workflow_dispatch:
+ 
 
 jobs:
   apply-infra:
