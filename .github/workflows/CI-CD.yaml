@@ -1,0 +1,41 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - 'terraform/**'
+      - 'app/**'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  conditional-workflow-trigger:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # Determina qué cambios se han realizado en la última push o en la PR
+      - name: Set up Path Filter
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            infra:
+              - 'terraform/**'
+            app:
+              - 'app/**'
+
+      # CI/CD para infraestructura si se modifican archivos Terraform
+      - name: Trigger CI for Infrastructure
+        if: ${{ github.ref == 'refs/heads/dev' && steps.filter.outputs.infra == 'true' }}
+        uses: ./.github/workflows/ci-infra.yaml
+
+      # CI/CD para la aplicación si se modifican archivos en la carpeta app
+      - name: Trigger CI for App
+        if: ${{ github.ref == 'refs/heads/dev' && steps.filter.outputs.app == 'true' }}
+        uses: ./.github/workflows/ci.yaml

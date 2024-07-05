@@ -78,6 +78,14 @@ resource "azurerm_container_registry" "acr" {
   sku                 = "Basic"
   admin_enabled       = true
 }
+# Azure Container Registry (ACR) prod
+resource "azurerm_container_registry" "acr" {
+  name                = "palonsoACRProd"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = var.location
+  sku                 = "Basic"
+  admin_enabled       = true
+}
 
 # Outputs
 output "backup_vm_public_ip" {

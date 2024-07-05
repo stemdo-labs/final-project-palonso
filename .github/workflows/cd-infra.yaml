@@ -1,12 +1,15 @@
 name: CD for Infrastructure
-
+#requerir aprobación antes de ejecutarse
 on:
   workflow_run:
     workflows: ["CI for Infrastructure"]
     types:
+      #se ejecutara si se ha aprobado y si el workflow anterior ha tenido exito
       - completed
     branches:
-      - 'palonso-iac-b'
+      - 'main'
+      - 'dev'
+
 
 jobs:
   apply-infra:
