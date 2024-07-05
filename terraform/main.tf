@@ -72,7 +72,7 @@ module "load_balancer" {
 
 # Azure Container Registry (ACR)
 resource "azurerm_container_registry" "acrDev" {
-  name                = "palonsoACRDev"
+  name                = "palonsoACRdev"
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location
   sku                 = "Basic"
