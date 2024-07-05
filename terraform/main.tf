@@ -79,7 +79,7 @@ resource "azurerm_container_registry" "acrDev" {
   admin_enabled       = true
 }
 # Azure Container Registry (ACR) prod
-resource "azurerm_container_registry" "ACRProd" {
+resource "azurerm_container_registry" "ACRprod" {
   name                = "palonsoACRProd"
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location
