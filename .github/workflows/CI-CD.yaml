@@ -58,6 +58,8 @@ jobs:
     needs: conditional-workflow-trigger
     if: ${{ needs.conditional-workflow-trigger.outputs.app_changed == 'true' && github.ref == 'refs/heads/dev' }}
     uses: ./.github/workflows/ci.yaml
+    with:
+        environment: dev
     secrets: inherit
 
   # Paso las variables de entorno de dev
@@ -83,8 +85,10 @@ jobs:
 
   # PROD: Despliegue de aplicación en main (después del merge)
   post-merge-ci-app:
-    if: ${{ github.event.pull_request.merged == 'success' && github.event.pull_request.base.ref == 'main' }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     uses: ./.github/workflows/ci.yaml
+    with:
+        environment: prod
     secrets: inherit
 
   post-merge-cd-app:
