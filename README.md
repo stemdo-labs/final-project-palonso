@@ -263,6 +263,9 @@ y haré el sembrado de la base de datos manualmente.
 # CI/CD PIPELINE
 ![image](https://github.com/stemdo-labs/final-project-palonso/assets/166375061/65f35329-bc54-462b-808f-73a520b9fac3)
 
+![image](https://github.com/stemdo-labs/final-project-palonso/assets/166375061/7d412522-a80a-4040-aaac-33808b28b089)
+
+
 
 # Disaster recovery
 
