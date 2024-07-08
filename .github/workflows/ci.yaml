@@ -8,10 +8,10 @@ on:
         required: true
         type: string
 
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
 
     steps:
       - name: Checkout repository
@@ -20,11 +20,18 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Get version from composer.json
+      - name: Get version based on environment
         id: get_version
         run: |
-          VERSION=$(jq -r '.version' app/composer.json)
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          if [ "${{ inputs.environment }}" == "dev" ]; then
+            # Use GitHub run number for dev version
+            VERSION="dev-build-${{ github.run_number }}"
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+          else
+            # Use version from composer.json for prod
+            VERSION=$(jq -r '.version' app/composer.json)
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+          fi
 
       - name: Log in to Azure
         uses: azure/login@v1
@@ -34,18 +41,18 @@ jobs:
       - name: Get ACR Password
         id: get_acr_password
         run: |
-          ACR_PASSWORD=$(az acr credential show --name palonsoACR --query "passwords[0].value" --output tsv)
+          ACR_PASSWORD=$(az acr credential show --name ${{ secrets.ACR_NAME }} --query "passwords[0].value" --output tsv)
           echo "ACR_PASSWORD=$ACR_PASSWORD" >> $GITHUB_ENV
 
       - name: Log in to ACR
-        run: echo "${{ env.ACR_PASSWORD }}" | docker login palonsoacr.azurecr.io -u "${{ secrets.ACR_USERNAME }}" --password-stdin
+        run: echo "${{ env.ACR_PASSWORD }}" | docker login ${{ secrets.ACR_NAME }}.azurecr.io -u "${{ secrets.ACR_USERNAME }}" --password-stdin
 
       - name: Build Docker image
         run: |
-          docker build -t palonsoacr.azurecr.io/my-concert-app:${{ env.VERSION }} -t palonsoacr.azurecr.io/my-concert-app:latest -f app/Dockerfile .
+          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/my-concert-app:${{ env.VERSION }} -t ${{ secrets.ACR_NAME }}.azurecr.io/my-concert-app:latest -f app/Dockerfile .
         working-directory: .
 
       - name: Push Docker image
         run: |
-          docker push palonsoacr.azurecr.io/my-concert-app:${{ env.VERSION }}
-          docker push palonsoacr.azurecr.io/my-concert-app:latest
+          docker push ${{ secrets.ACR_NAME }}.azurecr.io/my-concert-app:${{ env.VERSION }}
+          docker push ${{ secrets.ACR_NAME }}.azurecr.io/my-concert-app:latest
