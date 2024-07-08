@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: dev  
+          ref: dev
 
       - name: Bump version in composer.json
         run: |
@@ -23,7 +23,6 @@ jobs:
           sed -i "s/\"version\": \"$VERSION\"/\"version\": \"$NEW_VERSION\"/" app/composer.json
           git config --global user.email "palonso@stemdo.io"
           git config --global user.name "Pilar"
-          git checkout dev 
           git add app/composer.json
           git commit -m "Bump version to $NEW_VERSION"
-          git push origin dev  
+          git push https://x-access-token:${{ secrets.GIT_TOKEN }}@github.com/stemdo-labs/final-project-palonso.git dev
