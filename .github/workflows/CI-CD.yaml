@@ -83,7 +83,7 @@ jobs:
 
   # PROD: Despliegue de aplicación en main (después del merge)
   post-merge-ci-app:
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.event.pull_request.merged == 'success' && github.event.pull_request.base.ref == 'main' }}
     uses: ./.github/workflows/ci.yaml
     secrets: inherit
 
