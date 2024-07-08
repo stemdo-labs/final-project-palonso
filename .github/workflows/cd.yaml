@@ -1,7 +1,7 @@
 name: CD for Application and K8s Deploy
 
 on:
-  workflow_dispatch:
+  workflow_call:
     
 jobs:
   build-and-deploy:
