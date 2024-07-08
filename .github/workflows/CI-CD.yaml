@@ -98,3 +98,12 @@ jobs:
     with:
       environment: prod
     secrets: inherit
+
+    # Después del merge en main en dev haremos un update de la version
+  post-merge-update-composer:
+    needs: post-merge-cd-app
+    if: ${{ needs.post-merge-cd-app.result == 'success' }}
+    uses: ./.github/workflows/update-composer.yaml
+    with:
+      environment: dev
+    secrets: inherit
