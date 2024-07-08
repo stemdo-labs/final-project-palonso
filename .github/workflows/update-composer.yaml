@@ -15,14 +15,15 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: dev  
+
       - name: Bump version in composer.json
         run: |
           VERSION=$(jq -r '.version' app/composer.json)
           NEW_VERSION=$(echo $VERSION | awk -F. -v OFS=. '{$NF += 1 ; print}')
-          jq --arg new_version "$NEW_VERSION" '.version = $new_version' app/composer.json > app/composer_tmp.json && mv app/composer_tmp.json app/composer.json
+          sed -i "s/\"version\": \"$VERSION\"/\"version\": \"$NEW_VERSION\"/" app/composer.json
           git config --global user.email "palonso@stemdo.io"
-          git config --global user.name "pilar"
-          git checkout dev  
+          git config --global user.name "Pilar"
+          git checkout dev 
           git add app/composer.json
           git commit -m "Bump version to $NEW_VERSION"
-          git push origin dev  # Empuja los cambios directamente a la rama dev
+          git push origin dev  
