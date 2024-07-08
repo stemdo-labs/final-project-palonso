@@ -1,8 +1,30 @@
 name: CD for Application and K8s Deploy
 
 on:
-  workflow_dispatch:
-    
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: string
+    secrets:
+      ACR_DEV:
+        required: true
+      ACR_PROD:
+        required: true
+      VERSION_DEV:
+        required: true
+      VERSION_PROD:
+        required: true
+      AZURE_CREDENTIALS:
+        required: true
+      SUBSCRIPTION_ID:
+        required: true
+      RESOURCE_GROUP_NAME_AKS:
+        required: true
+      CLUSTER_NAME:
+        required: true
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -19,12 +41,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Get version from composer.json
-        id: get_version
-        run: | 
-          VERSION=$(jq -r '.version' app/composer.json)
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Set environment variables
+        run: |
+          if [ "${{ inputs.environment }}" == "dev" ]; then
+            echo "VERSION=${{ secrets.VERSION_DEV }}" >> $GITHUB_ENV
+            echo "ACR_NAME=${{ secrets.ACR_DEV }}" >> $GITHUB_ENV
+          else
+            echo "VERSION=${{ secrets.VERSION_PROD }}" >> $GITHUB_ENV
+            echo "ACR_NAME=${{ secrets.ACR_PROD }}" >> $GITHUB_ENV
+          fi
 
       - name: Set Azure account
         run: |
@@ -59,7 +84,7 @@ jobs:
 
       - name: Update deployment image
         run: |
-          kubectl set image deployment/my-concert-app my-concert-app=palonsoacr.azurecr.io/my-concert-app:${{ env.VERSION }} -n ns-palonso
+          kubectl set image deployment/my-concert-app my-concert-app=${{ env.ACR_NAME }}/my-concert-app:${{ env.VERSION }} -n ns-palonso
 
       - name: Get all resources in namespace
         run: |

@@ -13,16 +13,15 @@ on:
       - main
 
 jobs:
+  # Determina qué cambios se han realizado
   conditional-workflow-trigger:
     runs-on: ubuntu-latest
+    environment: prod
     outputs:
       infra_changed: ${{ steps.set-output-infra.outputs.infra_changed }}
       app_changed: ${{ steps.set-output-app.outputs.app_changed }}
-
     steps:
       - uses: actions/checkout@v2
-
-      # Determina qué cambios se han realizado
       - name: Set up Path Filter
         id: filter
         uses: dorny/paths-filter@v2
@@ -32,26 +31,66 @@ jobs:
               - 'terraform/**'
             app:
               - 'app/**'
-
       - name: Set output for infra
         id: set-output-infra
         if: ${{ steps.filter.outputs.infra == 'true' }}
         run: echo "::set-output name=infra_changed::true"
-
       - name: Set output for app
         id: set-output-app
         if: ${{ steps.filter.outputs.app == 'true' }}
         run: echo "::set-output name=app_changed::true"
 
-  # Se ejecutan solo en dev cuando cambien los ficheros correspondientes
+  # DEV: Despliegue de infraestructura en dev
   trigger-ci-infra:
     needs: conditional-workflow-trigger
     if: ${{ needs.conditional-workflow-trigger.outputs.infra_changed == 'true' && github.ref == 'refs/heads/dev' }}
     uses: ./.github/workflows/ci-infra.yaml
     secrets: inherit
 
+  cd-for-infrastructure:
+    needs: trigger-ci-infra
+    if: ${{ needs.trigger-ci-infra.result == 'success' }}
+    uses: ./.github/workflows/cd-infra.yaml
+    secrets: inherit
+
+  # DEV: Despliegue de aplicación en dev
   trigger-ci-app:
     needs: conditional-workflow-trigger
     if: ${{ needs.conditional-workflow-trigger.outputs.app_changed == 'true' && github.ref == 'refs/heads/dev' }}
     uses: ./.github/workflows/ci.yaml
+    secrets: inherit
+
+  # Paso las variables de entorno de dev
+  cd-app:
+    needs: trigger-ci-app
+    if: ${{ needs.trigger-ci-app.result == 'success' && github.ref == 'refs/heads/dev' }}
+    uses: ./.github/workflows/cd.yaml
+    with:
+      environment: dev
+    secrets: inherit
+
+  # PROD: Despliegue de infraestructura en main (PR)
+  trigger-ci-infra-production:
+    if: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' }}
+    uses: ./.github/workflows/ci-infra.yaml
+    secrets: inherit
+
+  cd-for-infrastructure-production:
+    needs: trigger-ci-infra-production
+    if: ${{ needs.trigger-ci-infra-production.result == 'success' }}
+    uses: ./.github/workflows/cd-infra.yaml
+    secrets: inherit
+
+  # PROD: Despliegue de aplicación en main (después del merge)
+  post-merge-ci-app:
+    if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' }}
+    uses: ./.github/workflows/ci.yaml
+    secrets: inherit
+
+  post-merge-cd-app:
+    needs: post-merge-ci-app
+    if: ${{ needs.post-merge-ci-app.result == 'success' }}
+    uses: ./.github/workflows/cd.yaml
+    with:
+      environment: prod
     secrets: inherit

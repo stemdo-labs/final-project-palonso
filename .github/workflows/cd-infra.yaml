@@ -1,13 +1,7 @@
 name: CD for Infrastructure
 
 on:
-  workflow_run:
-    workflows: ["CI for Infrastructure"]
-    types:
-      - completed
-    branches:
-      - 'dev'
-      - 'main'
+  workflow_call:
 
 jobs:
   apply-infra:
@@ -29,15 +23,28 @@ jobs:
           echo "ARM_SUBSCRIPTION_ID=${{ secrets.SUBSCRIPTION_ID }}" >> $GITHUB_ENV
           echo "ARM_TENANT_ID=${{ secrets.TENANT_ID }}" >> $GITHUB_ENV
 
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
         working-directory: ./terraform
 
+      - name: Check if Resource Group is Imported
+        id: check_rg
+        run: |
+          if terraform state show azurerm_resource_group.main; then
+            echo "::set-output name=imported::true"
+          else
+            echo "::set-output name=imported::false"
+          fi
+        working-directory: ./terraform
+        #Importamos el resource group solo si no se importó previamente
       - name: Import existing resource group
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ steps.check_rg.outputs.imported == 'false' }}
         run: terraform import azurerm_resource_group.main "/subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/rg-palonso"
         working-directory: ./terraform
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -input=false
         working-directory: ./terraform
