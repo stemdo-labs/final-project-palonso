@@ -59,19 +59,15 @@ jobs:
     if: ${{ needs.conditional-workflow-trigger.outputs.app_changed == 'true' && github.ref == 'refs/heads/dev' }}
     uses: ./.github/workflows/ci.yaml
     secrets: inherit
-#paso las variables de entorno de dev
+
+  # Paso las variables de entorno de dev
   cd-app:
-    runs-on: ubuntu-latest
     needs: trigger-ci-app
-    environment: dev
     if: ${{ needs.trigger-ci-app.result == 'success' && github.ref == 'refs/heads/dev' }}
-    steps:
-      - name: CD App
-        uses: ./.github/workflows/cd.yaml
-        with:
-          version: ${{ vars.DEV_VERSION }}
-          acr_name: ${{ secrets.DEV_ACR }}
-          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
+    uses: ./.github/workflows/cd.yaml
+    with:
+      environment: dev
+    secrets: inherit
 
   # PROD: Despliegue de infraestructura en main (PR)
   trigger-ci-infra-production:
@@ -90,16 +86,11 @@ jobs:
     if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' }}
     uses: ./.github/workflows/ci.yaml
     secrets: inherit
-#Paso las variables de entorno de prod
+
   post-merge-cd-app:
-    runs-on: ubuntu-latest
     needs: post-merge-ci-app
-    environment: prod
     if: ${{ needs.post-merge-ci-app.result == 'success' }}
-    steps:
-      - name: Post Merge CD App
-        uses: ./.github/workflows/cd-app.yaml
-        with:
-          version: ${{ vars.PROD_VERSION }}
-          acr_name: ${{ secrets.PROD_ACR }}
-          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
+    uses: ./.github/workflows/cd-app.yaml
+    with:
+      environment: prod
+    secrets: inherit
