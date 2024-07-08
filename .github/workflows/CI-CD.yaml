@@ -90,7 +90,7 @@ jobs:
   post-merge-cd-app:
     needs: post-merge-ci-app
     if: ${{ needs.post-merge-ci-app.result == 'success' }}
-    uses: ./.github/workflows/cd-app.yaml
+    uses: ./.github/workflows/cd.yaml
     with:
       environment: prod
     secrets: inherit
