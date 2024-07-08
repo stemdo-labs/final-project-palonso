@@ -2,6 +2,11 @@ name: CD for Application and K8s Deploy
 
 on:
   workflow_call:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: string
     
 jobs:
   build-and-deploy:
