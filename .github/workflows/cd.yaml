@@ -77,16 +77,11 @@ jobs:
         run: |
           kubelogin convert-kubeconfig -l azurecli
 
-      # Reemplazar la versión en deployment.yaml antes del despliegue
-      - name: Replace VERSION in deployment.yaml
-        run: |
-          sed -i 's/${APP_VERSION}/'${{ env.APP_VERSION }}'/' kubernetes/deployment.yaml
-          sed -i 's/${TEST_VERSION}/'${{ env.TEST_VERSION }}'/' kubernetes/deployment.yaml
 
       # Desplegar la aplicación a Kubernetes usando Helm
       - name: Deploy to Kubernetes with Helm
         run: |
-          helm upgrade --install my-multi-deployment ./helm-chart \
+          helm upgrade --install my-multi-deployment ./my-multi-deployment \
             --set app.image.repository=${{ env.APP_ACR_NAME }}.azurecr.io/my-concert-app \
             --set app.image.tag=${APP_VERSION} \
             --set test.image.repository=${{ env.TEST_ACR_NAME }}.azurecr.io/my-concert-test \
