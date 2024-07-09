@@ -106,4 +106,6 @@ jobs:
     uses: ./.github/workflows/update-composer.yaml
     with:
       environment: dev
+    permissions:
+      contents: write
     secrets: inherit
