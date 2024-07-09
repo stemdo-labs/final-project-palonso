@@ -12,7 +12,7 @@ jobs:
   update-version:
     runs-on: ubuntu-latest
     permissions:
-      contents: write 
+      contents: write  # Asegúrate de que los permisos sean adecuados
     steps:
       - uses: actions/checkout@v2
         with:
@@ -30,6 +30,4 @@ jobs:
           git config --global user.name "Pilar"
           git add app/composer.json
           git commit -m "Bump version to $NEW_VERSION"
-          git push origin dev
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/stemdo-labs/final-project-palonso.git dev
