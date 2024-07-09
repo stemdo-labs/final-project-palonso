@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "my-multi-deployment.fullname" . }}
-  namespace: default
+  namespace: ns-palonso
   labels:
     {{- include "my-multi-deployment.labels" . | nindent 4 }}
 spec:
