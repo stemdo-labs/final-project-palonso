@@ -7,7 +7,7 @@ on:
         description: 'Environment to deploy'
         required: true
         type: string
-    
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -25,12 +25,34 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Get version from composer.json
+      # Obtener el valor del ACR_NAME basado en el entorno
+      - name: Set ACR name
+        id: set_acr_name
+        run: |
+          if [ "${{ inputs.environment }}" == "dev" ]; then
+            echo "APP_ACR_NAME=${{ secrets.DEV_ACR_NAME }}" >> $GITHUB_ENV
+            echo "TEST_ACR_NAME=${{ secrets.PROD_ACR_NAME }}" >> $GITHUB_ENV
+          else
+            echo "APP_ACR_NAME=${{ secrets.PROD_ACR_NAME }}" >> $GITHUB_ENV
+            echo "TEST_ACR_NAME=${{ secrets.PROD_ACR_NAME }}" >> $GITHUB_ENV
+          fi
+
+      # Obtener la versión basada en el entorno
+      - name: Get version based on environment
         id: get_version
-        run: | 
-          VERSION=$(jq -r '.version' app/composer.json)
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+        run: |
+          if [ "${{ inputs.environment }}" == "dev" ]; then
+            # Use GitHub run number for dev version for app
+            APP_VERSION="dev-build-${{ github.run_number }}"
+            # Use version from composer.json for test
+            TEST_VERSION=$(jq -r '.version' app/composer.json)
+          else
+            # Use version from composer.json for both
+            APP_VERSION=$(jq -r '.version' app/composer.json)
+            TEST_VERSION=$APP_VERSION
+          fi
+          echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
+          echo "TEST_VERSION=$TEST_VERSION" >> $GITHUB_ENV
 
       - name: Set Azure account
         run: |
@@ -55,30 +77,48 @@ jobs:
         run: |
           kubelogin convert-kubeconfig -l azurecli
 
+      # Reemplazar la versión en deployment.yaml antes del despliegue
       - name: Replace VERSION in deployment.yaml
         run: |
-          sed -i 's/${VERSION}/'${{ env.VERSION }}'/' kubernetes/deployment.yaml
+          sed -i 's/${APP_VERSION}/'${{ env.APP_VERSION }}'/' kubernetes/deployment.yaml
+          sed -i 's/${TEST_VERSION}/'${{ env.TEST_VERSION }}'/' kubernetes/deployment.yaml
 
+      # Desplegar la aplicación a Kubernetes usando Helm
+      - name: Deploy to Kubernetes with Helm
+        run: |
+          helm upgrade --install my-multi-deployment ./helm-chart \
+            --set app.image.repository=${{ env.APP_ACR_NAME }}.azurecr.io/my-concert-app \
+            --set app.image.tag=${APP_VERSION} \
+            --set test.image.repository=${{ env.TEST_ACR_NAME }}.azurecr.io/my-concert-test \
+            --set test.image.tag=${TEST_VERSION}
+
+      # Aplicar los manifiestos de Kubernetes
       - name: Apply Kubernetes manifests
         run: |
           kubectl apply -f kubernetes/ -n ns-palonso
 
+      # Actualizar la imagen del despliegue
       - name: Update deployment image
         run: |
-          kubectl set image deployment/my-concert-app my-concert-app=palonsoacr.azurecr.io/my-concert-app:${{ env.VERSION }} -n ns-palonso
+          kubectl set image deployment/my-concert-app my-concert-app=${{ env.APP_ACR_NAME }}.azurecr.io/my-concert-app:${APP_VERSION} -n ns-palonso
+          kubectl set image deployment/my-concert-test my-concert-test=${{ env.TEST_ACR_NAME }}.azurecr.io/my-concert-test:${TEST_VERSION} -n ns-palonso
 
+      # Obtener todos los recursos en el namespace
       - name: Get all resources in namespace
         run: |
           kubectl get all -n ns-palonso
 
+      # Aplicar el Ingress Controller
       - name: Apply Ingress Controller
         run: |
           kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml
 
+      # Obtener pods de Ingress
       - name: Get Ingress pods
         run: |
           kubectl get pods --namespace ingress-nginx
 
+      # Obtener servicio de Ingress
       - name: Get Ingress service
         run: |
           kubectl get service ingress-nginx-controller --namespace=ingress-nginx

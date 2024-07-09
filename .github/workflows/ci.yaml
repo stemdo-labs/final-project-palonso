@@ -55,4 +55,3 @@ jobs:
       - name: Push Docker image
         run: |
           docker push ${{ secrets.ACR_NAME }}.azurecr.io/my-concert-app:${{ env.VERSION }}
-          docker push ${{ secrets.ACR_NAME }}.azurecr.io/my-concert-app:latest
