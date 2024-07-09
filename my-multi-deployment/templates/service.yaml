@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "my-multi-deployment.fullname" . }}
+  name: {{ include "my-multi-deployment.fullname" . }}-service
+  namespace: ns-palonso
   labels:
     {{- include "my-multi-deployment.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: 80
       protocol: TCP
-      name: http
   selector:
-    {{- include "my-multi-deployment.selectorLabels" . | nindent 4 }}
+    app: {{ include "my-multi-deployment.name" . }}
