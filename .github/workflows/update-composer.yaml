@@ -16,6 +16,9 @@ jobs:
         with:
           ref: dev
 
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
       - name: Bump version in composer.json
         run: |
           VERSION=$(jq -r '.version' app/composer.json)
@@ -25,6 +28,6 @@ jobs:
           git config --global user.name "Pilar"
           git add app/composer.json
           git commit -m "Bump version to $NEW_VERSION"
-          git push https://x-access-token:${{ secrets.GIT_TOKEN }}@github.com/stemdo-labs/final-project-palonso.git dev
-
-
+          git push origin dev
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
