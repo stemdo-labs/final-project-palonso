@@ -73,7 +73,7 @@ jobs:
 
   # PROD: Despliegue de infraestructura en main (PR)
   trigger-ci-infra-production:
-    needs: conditional-workflow-trigger
+    needs: [conditional-workflow-trigger, cd-for-infrastructure]
     if: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' }}
     uses: ./.github/workflows/ci-infra.yaml
     secrets: inherit
