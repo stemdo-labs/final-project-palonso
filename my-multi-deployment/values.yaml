@@ -6,8 +6,8 @@ app:
     tag: ""
     pullPolicy: IfNotPresent
 
-imagePullSecrets:
-  - name: regcred
+imagePullSecretName: "regcred"  
+
 
 nameOverride: ""
 fullnameOverride: ""

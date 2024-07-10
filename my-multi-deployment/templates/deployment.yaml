@@ -32,4 +32,4 @@ spec:
         - name: DB_NAME
           value: "concierto"
       imagePullSecrets:
-      - name: {{ .Values.imagePullSecrets[0].name }}
+        - name: {{ .Values.imagePullSecretName }}
