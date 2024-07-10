@@ -73,7 +73,7 @@ jobs:
 
   # PROD: Despliegue de infraestructura en main (PR)
   trigger-ci-infra-production:
-    needs: [conditional-workflow-trigger, cd-for-infrastructure]
+    needs: conditional-workflow-trigger
     if: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' }}
     uses: ./.github/workflows/ci-infra.yaml
     secrets: inherit
@@ -85,6 +85,7 @@ jobs:
     secrets: inherit
   # PROD: Despliegue de aplicación en main (después del merge)
   post-merge-ci-app:
+    needs: [conditional-workflow-trigger, cd-for-infrastructure]
     if: ${{ github.ref == 'refs/heads/main' }}
     uses: ./.github/workflows/ci.yaml
     with:
