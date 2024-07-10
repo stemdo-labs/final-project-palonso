@@ -85,11 +85,11 @@ jobs:
     secrets: inherit
   # PROD: Despliegue de aplicación en main (después del merge)
   post-merge-ci-app:
-    needs: [ cd-for-infrastructure-production]
-    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [conditional-workflow-trigger, cd-for-infrastructure-production]
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
     uses: ./.github/workflows/ci.yaml
     with:
-        environment: prod
+      environment: prod
     secrets: inherit
 
   post-merge-cd-app:
