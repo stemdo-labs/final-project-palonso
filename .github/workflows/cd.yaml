@@ -32,11 +32,16 @@ jobs:
           if [ "${{ inputs.environment }}" == "dev" ]; then
             # Use GitHub run number for dev version
             VERSION="dev-build-${{ github.run_number }}"
+            echo "ACR_NAME=${{ secrets.DEV_ACR_NAME }}" >> $GITHUB_ENV
+            VALUES_FILE="values-dev.yaml"
           else
             # Use version from composer.json for prod
             VERSION=$(jq -r '.version' app/composer.json)
+            echo "ACR_NAME=${{ secrets.PROD_ACR_NAME }}" >> $GITHUB_ENV
+            VALUES_FILE="values-prod.yaml"
           fi
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VALUES_FILE=$VALUES_FILE" >> $GITHUB_ENV
 
       - name: Set Azure account
         run: |
@@ -64,19 +69,17 @@ jobs:
       # Desplegar la aplicación a Kubernetes usando Helm
       - name: Deploy to Kubernetes with Helm
         run: |
-          helm upgrade --install my-multi-deployment ./my-multi-deployment \
-            --set app.image.repository=${{ secrets.ACR_NAME }}.azurecr.io/my-concert-app \
-            --set app.image.tag=${VERSION}
-
-      # Aplicar los manifiestos de Kubernetes
-      - name: Apply Kubernetes manifests
-        run: |
-          kubectl apply -f kubernetes/ -n ns-palonso
-
-      # Actualizar la imagen del despliegue
-      - name: Update deployment image
-        run: |
-          kubectl set image deployment/my-concert-app my-concert-app=${{ secrets.ACR_NAME }}.azurecr.io/my-concert-app:${VERSION} -n ns-palonso
+          if [ "${{ inputs.environment }}" == "dev" ]; then
+            helm upgrade --install my-multi-deployment ./my-multi-deployment \
+              --values ./my-multi-deployment/$VALUES_FILE \
+              --set image.repository=${{ env.ACR_NAME }}.azurecr.io/my-concert-test \
+              --set image.tag=${VERSION}
+          else
+            helm upgrade --install my-multi-deployment ./my-multi-deployment \
+              --values ./my-multi-deployment/$VALUES_FILE \
+              --set image.repository=${{ env.ACR_NAME }}.azurecr.io/my-concert-app \
+              --set image.tag=${VERSION}
+          fi
 
       # Obtener todos los recursos en el namespace
       - name: Get all resources in namespace
