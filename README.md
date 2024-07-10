@@ -265,6 +265,8 @@ y haré el sembrado de la base de datos manualmente.
 
 ![image](https://github.com/stemdo-labs/final-project-palonso/assets/166375061/7d412522-a80a-4040-aaac-33808b28b089)
 
+# BRANCH MAINTENANCE
+![image](https://github.com/stemdo-labs/final-project-palonso/assets/166375061/31533306-1d84-4448-95e4-496b9aaf6e28)
 
 
 # Disaster recovery
