@@ -19,9 +19,9 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ include "my-multi-deployment.fullname" $. }}-service
+                name: {{ include "my-multi-deployment.fullname" $root }}-service
                 port:
-                  number: {{ $.Values.pilarService.port }}
+                  number: {{ $root.Values.pilarService.port }}
           {{- end }}
     {{- end }}
   {{- if .Values.pilarIngress.tls }}
