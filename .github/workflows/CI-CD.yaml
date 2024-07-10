@@ -82,10 +82,10 @@ jobs:
     if: ${{ needs.trigger-ci-infra-production.result == 'success' }}
     uses: ./.github/workflows/cd-infra.yaml
     secrets: inherit
-
   # PROD: Despliegue de aplicación en main (después del merge)
   post-merge-ci-app:
-    if: ${{ github.event.pull_request.merged == true }}
+    needs: cd-for-infrastructure-production
+    if: ${{ github.ref == 'refs/heads/main' }}
     uses: ./.github/workflows/ci.yaml
     with:
         environment: prod
@@ -97,4 +97,15 @@ jobs:
     uses: ./.github/workflows/cd.yaml
     with:
       environment: prod
+    secrets: inherit
+
+    # Después del merge en main en dev haremos un update de la version
+  post-merge-update-composer:
+    needs: post-merge-cd-app
+    if: ${{ needs.post-merge-cd-app.result == 'success' }}
+    uses: ./.github/workflows/update-composer.yaml
+    with:
+      environment: dev
+    permissions:
+      contents: write
     secrets: inherit

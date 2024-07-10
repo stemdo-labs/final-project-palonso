@@ -1,0 +1,35 @@
+replicaCount: 3
+
+app:
+  image:
+    repository: "palonsoacr.azurecr.io/my-concert-app"
+    tag: "prod-latest"
+  name: "my-concert-app-prod"
+
+test:
+  image:
+    repository: "palonsoacr.azurecr.io/my-concert-test"
+    tag: "prod-latest"
+  name: "my-concert-test-prod"
+
+resources:
+  limits:
+    cpu: "1"
+    memory: "1024Mi"
+  requests:
+    cpu: "500m"
+    memory: "512Mi"
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 80
+  initialDelaySeconds: 3
+  periodSeconds: 3
+
+readinessProbe:
+  httpGet:
+    path: /readiness
+    port: 80
+  initialDelaySeconds: 5
+  periodSeconds: 5

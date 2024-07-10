@@ -7,10 +7,11 @@ on:
         description: 'Environment to deploy'
         required: true
         type: string
-    
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
 
     defaults:
       run:
@@ -24,12 +25,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Get version from composer.json
+      # Obtén la versión basada en el entorno
+      - name: Get version based on environment
         id: get_version
-        run: | 
-          VERSION=$(jq -r '.version' app/composer.json)
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        run: |
+          if [ "${{ inputs.environment }}" == "dev" ]; then
+            # Use GitHub run number for dev version
+            VERSION="dev-build-${{ github.run_number }}"
+            echo "ACR_NAME=${{ secrets.DEV_ACR_NAME }}" >> $GITHUB_ENV
+            VALUES_FILE="values-dev.yaml"
+          else
+            # Use version from composer.json for prod
+            VERSION=$(jq -r '.version' app/composer.json)
+            echo "ACR_NAME=${{ secrets.PROD_ACR_NAME }}" >> $GITHUB_ENV
+            VALUES_FILE="values-prod.yaml"
+          fi
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VALUES_FILE=$VALUES_FILE" >> $GITHUB_ENV
 
       - name: Set Azure account
         run: |
@@ -54,30 +66,37 @@ jobs:
         run: |
           kubelogin convert-kubeconfig -l azurecli
 
-      - name: Replace VERSION in deployment.yaml
+      # Desplegar la aplicación a Kubernetes usando Helm
+      - name: Deploy to Kubernetes with Helm
         run: |
-          sed -i 's/${VERSION}/'${{ env.VERSION }}'/' kubernetes/deployment.yaml
+          if [ "${{ inputs.environment }}" == "dev" ]; then
+            helm upgrade --install my-multi-deployment ./my-multi-deployment \
+              --values ./my-multi-deployment/$VALUES_FILE \
+              --set image.repository=${{ env.ACR_NAME }}.azurecr.io/my-concert-test \
+              --set image.tag=${VERSION}
+          else
+            helm upgrade --install my-multi-deployment ./my-multi-deployment \
+              --values ./my-multi-deployment/$VALUES_FILE \
+              --set image.repository=${{ env.ACR_NAME }}.azurecr.io/my-concert-app \
+              --set image.tag=${VERSION}
+          fi
 
-      - name: Apply Kubernetes manifests
-        run: |
-          kubectl apply -f kubernetes/ -n ns-palonso
-
-      - name: Update deployment image
-        run: |
-          kubectl set image deployment/my-concert-app my-concert-app=palonsoacr.azurecr.io/my-concert-app:${{ env.VERSION }} -n ns-palonso
-
+      # Obtener todos los recursos en el namespace
       - name: Get all resources in namespace
         run: |
           kubectl get all -n ns-palonso
 
+      # Aplicar el Ingress Controller
       - name: Apply Ingress Controller
         run: |
           kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml
 
+      # Obtener pods de Ingress
       - name: Get Ingress pods
         run: |
           kubectl get pods --namespace ingress-nginx
 
+      # Obtener servicio de Ingress
       - name: Get Ingress service
         run: |
           kubectl get service ingress-nginx-controller --namespace=ingress-nginx

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "my-multi-deployment.fullname" . }}
+  namespace: ns-palonso
+  labels:
+    {{- include "my-multi-deployment.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "my-multi-deployment.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "my-multi-deployment.name" . }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: 80
+        env:
+        - name: DB_HOST
+          value: "10.0.26.4"
+        - name: DB_USER
+          value: "pilar"
+        - name: DB_PASSWORD
+          value: "pilar"
+        - name: DB_NAME
+          value: "concierto"
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecrets }}
