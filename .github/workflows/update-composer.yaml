@@ -21,6 +21,11 @@ jobs:
       - name: Install jq
         run: sudo apt-get install -y jq
 
+      - name: Recreating dev branch
+        run: |
+          git push origin --delete dev
+          git checkout -b dev main
+
       - name: Bump version in composer.json
         run: |
           VERSION=$(jq -r '.version' app/composer.json)
