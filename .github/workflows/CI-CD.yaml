@@ -82,10 +82,10 @@ jobs:
     if: ${{ needs.trigger-ci-infra-production.result == 'success' }}
     uses: ./.github/workflows/cd-infra.yaml
     secrets: inherit
-
   # PROD: Despliegue de aplicación en main (después del merge)
   post-merge-ci-app:
     needs: cd-for-infrastructure-production
+    if: ${{ github.ref == 'refs/heads/main' }}
     uses: ./.github/workflows/ci.yaml
     with:
         environment: prod
