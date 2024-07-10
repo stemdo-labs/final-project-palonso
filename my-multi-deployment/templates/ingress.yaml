@@ -1,17 +1,16 @@
-{{- $root := . -}}
-{{- if .Values.ingress.enabled -}}
+{{- if .Values.pilarIngress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "my-multi-deployment.fullname" $root }}-ingress
+  name: {{ include "my-multi-deployment.fullname" . }}-ingress
   namespace: ns-palonso
   annotations:
-    {{- range $key, $value := $root.Values.ingress.annotations }}
+    {{- range $key, $value := .Values.pilarIngress.annotations }}
       {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
   rules:
-    {{- range $root.Values.ingress.hosts }}
+    {{- range .Values.pilarIngress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
@@ -20,14 +19,14 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ include "my-multi-deployment.fullname" $root }}-service
+                name: {{ include "my-multi-deployment.fullname" $. }}-service
                 port:
-                  number: {{ $root.Values.service.port }}
+                  number: {{ $.Values.pilarService.port }}
           {{- end }}
     {{- end }}
-  {{- if $root.Values.ingress.tls }}
+  {{- if .Values.pilarIngress.tls }}
   tls:
-    {{- range $root.Values.ingress.tls }}
+    {{- range .Values.pilarIngress.tls }}
     - hosts:
         {{- range .hosts }}
         - {{ . | quote }}

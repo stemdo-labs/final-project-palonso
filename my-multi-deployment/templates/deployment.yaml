@@ -18,8 +18,8 @@ spec:
       serviceAccountName: {{ .Values.serviceAccount.name }}
       containers:
       - name: {{ .Chart.Name }}
-        image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
-        imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+        image: "{{ .Values.pilarApp.image.repository }}:{{ .Values.pilarApp.image.tag }}"
+        imagePullPolicy: {{ .Values.pilarApp.image.pullPolicy }}
         ports:
         - containerPort: 80
         env:
@@ -32,4 +32,4 @@ spec:
         - name: DB_NAME
           value: "concierto"
       imagePullSecrets:
-        - name: {{ .Values.imagePullSecretName }}
+        - name: {{ .Values.pilarImagePullSecretName }}
