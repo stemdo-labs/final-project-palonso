@@ -6,9 +6,9 @@ metadata:
   labels:
     {{- include "my-multi-deployment.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.pilarService.type }}
+  type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.pilarService.port }}
+    - port: {{ .Values.service.port }}
       targetPort: 80
       protocol: TCP
   selector:

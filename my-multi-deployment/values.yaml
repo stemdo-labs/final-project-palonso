@@ -2,50 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# ####################################################################### CHART PILAR #######################################################################
-
-pilarApp:
-  image:
-    repository: ""
-    tag: ""
-    pullPolicy: IfNotPresent
-
-pilarImagePullSecretName: "regcred"  # No es una lista, solo un valor simple
-
-pilarAutoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 10
-  targetCPUUtilizationPercentage: 80
-
-pilarService:
-  type: LoadBalancer
-  port: 80
-
-pilarIngress:
-  enabled: true
-  className: ""
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /app
-          pathType: ImplementationSpecific
-        - path: /dev
-          pathType: ImplementationSpecific
-  tls: []
-
-pilarResources: {}
-
-pilarNodeSelector: {}
-
-pilarTolerations: []
-
-pilarAffinity: {}
-# ####################################################################### CHART PILAR #######################################################################
-
-
 replicaCount: 1
 
 image:
