@@ -9,8 +9,10 @@ on:
       - 'terraform/**'
       - 'app/**'
   pull_request:
+    
     branches:
       - main
+    types: [opened, synchronize, reopened, closed]
 
 jobs:
   # Determina qué cambios se han reaizado
@@ -83,10 +85,13 @@ jobs:
     if: ${{ needs.trigger-ci-infra-production.result == 'success' }}
     uses: ./.github/workflows/cd-infra.yaml
     secrets: inherit
+
+
+
   # PROD: Despliegue de aplicación en main (después del merge)
   post-merge-ci-app:
-    needs: [conditional-workflow-trigger, cd-for-infrastructure-production]
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+    needs: [ cd-for-infrastructure-production]
+    if: github.event.pull_request.merged == true
     uses: ./.github/workflows/ci.yaml
     with:
       environment: prod
