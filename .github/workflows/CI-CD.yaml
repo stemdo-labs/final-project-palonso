@@ -9,7 +9,7 @@ on:
       - 'terraform/**'
       - 'app/**'
   pull_request:
-    types: [closed]
+    types: [closed,opened]
     branches:
       - main
 
