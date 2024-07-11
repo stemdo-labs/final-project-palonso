@@ -21,10 +21,13 @@ jobs:
       - name: Install jq
         run: sudo apt-get install -y jq
 
+      - name: Fetch all branches
+        run: git fetch origin
+
       - name: Recreating dev branch
         run: |
           git push origin --delete dev
-          git checkout -b dev main
+          git checkout -b dev origin/main
 
       - name: Bump version in composer.json
         run: |
