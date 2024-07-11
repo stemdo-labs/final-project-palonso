@@ -9,9 +9,10 @@ on:
       - 'terraform/**'
       - 'app/**'
   pull_request:
-    types: [closed,opened]
+    
     branches:
       - main
+    types: [opened, synchronize, reopened, closed]
 
 jobs:
   # Determina qué cambios se han reaizado
