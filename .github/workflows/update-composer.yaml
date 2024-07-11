@@ -24,10 +24,14 @@ jobs:
       - name: Fetch all branches
         run: git fetch origin
 
-      - name: Recreating dev branch
+      - name: Delete local and remote dev branch
         run: |
-          git push origin --delete dev
-          git checkout -b dev origin/main
+          git branch -D dev 
+          git push origin --delete dev 
+
+      - name: Recreate dev branch from main
+        run: git checkout -b dev origin/main
+
 
       - name: Bump version in composer.json
         run: |
