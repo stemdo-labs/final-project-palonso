@@ -15,8 +15,6 @@ jobs:
       contents: write  
     steps:
       - uses: actions/checkout@v2
-        with:
-          ref: dev
 
       - name: Install jq
         run: sudo apt-get install -y jq
@@ -24,14 +22,16 @@ jobs:
       - name: Fetch all branches
         run: git fetch origin
 
+      - name: Switch to main branch
+        run: git checkout main
+
       - name: Delete local and remote dev branch
         run: |
-          git branch -D dev 
-          git push origin --delete dev 
+          git branch -D dev || true
+          git push origin --delete dev || true
 
       - name: Recreate dev branch from main
         run: git checkout -b dev origin/main
-
 
       - name: Bump version in composer.json
         run: |
